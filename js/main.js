@@ -1,49 +1,32 @@
-// assets/js/main.js
+function renderTeams(teams) {
+  const container = document.querySelector('.team-grid');
+  container.innerHTML = '';
 
-// Initial date of the simulation
-let currentDate = new Date("2026-01-01");
+  Object.entries(teams).forEach(([teamName, data]) => {
+    const teamCard = document.createElement('div');
+    teamCard.classList.add('team-card');
 
-// Get DOM elements
-const dateDisplay = document.getElementById("date-display");
-const phaseDisplay = document.getElementById("phase-display");
-const phaseDetails = document.getElementById("phase-details");
-const advanceBtn = document.getElementById("advance-day");
+    // Create logo element
+    const logo = document.createElement('img');
+    logo.src = data.logo || 'assets/logos/default_logo.png';
+    logo.alt = `${teamName} logo`;
+    logo.className = 'team-logo';
 
-// Format the date into DD/MM/YYYY
-function formatDate(date) {
-  return date.toLocaleDateString("en-GB"); // "dd/mm/yyyy"
+    const teamTitle = document.createElement('h2');
+    teamTitle.textContent = teamName;
+
+    const playerList = document.createElement('ul');
+    playerList.classList.add('player-list');
+    data.players.forEach(player => {
+      const li = document.createElement('li');
+      li.textContent = `${player.name} (Rating: ${player.rating})`;
+      playerList.appendChild(li);
+    });
+
+    // Append all elements
+    teamCard.appendChild(logo);
+    teamCard.appendChild(teamTitle);
+    teamCard.appendChild(playerList);
+    container.appendChild(teamCard);
+  });
 }
-
-// Find the active phase from calendarPhases array
-function getCurrentPhase(date) {
-  const today = formatDate(date);
-
-  for (const phase of calendarPhases) {
-    const start = new Date(phase.start.split("/").reverse().join("-"));
-    const end = new Date(phase.end.split("/").reverse().join("-"));
-
-    if (date >= start && date <= end) {
-      return phase;
-    }
-  }
-
-  return { phase: "Off-season", details: "No active events" };
-}
-
-// Render the current date and phase
-function renderState() {
-  dateDisplay.textContent = formatDate(currentDate);
-
-  const phase = getCurrentPhase(currentDate);
-  phaseDisplay.textContent = phase.phase;
-  phaseDetails.textContent = phase.details;
-}
-
-// Advance the in-game date by 1 day
-advanceBtn.addEventListener("click", () => {
-  currentDate.setDate(currentDate.getDate() + 1);
-  renderState();
-});
-
-// On first load
-renderState();
