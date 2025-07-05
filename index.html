@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>R6S Esports Manager</title>
+  <link rel="stylesheet" href="./assets/css/style.css" />
+</head>
+<body>
+
+  <!-- ===== HOME SCREEN ===== -->
+  <div id="home-screen" class="container text-center">
+    <h1>🎮 R6S Esports Manager</h1>
+    <button class="btn primary" onclick="showCareerSetup()">Start New Career</button>
+
+    <div class="save-buttons">
+      <button class="btn secondary" onclick="loadCareer(1)">Load Slot 1</button>
+      <button class="btn secondary" onclick="loadCareer(2)">Load Slot 2</button>
+    </div>
+  </div>
+
+  <!-- ===== CAREER SETUP SCREEN ===== -->
+  <div id="career-setup" class="container hidden">
+    <h2>🧑‍💼 New Career Setup</h2>
+
+    <input id="coach-name" type="text" placeholder="Coach Name" class="input" />
+
+    <h3>📌 Select a Real Team</h3>
+    <select id="real-team-select" class="input"></select>
+
+    <h3>🎨 Or Create Custom Team</h3>
+    <input id="custom-team-name" type="text" placeholder="Custom Team Name" class="input"/>
+    <input id="custom-logo" type="file" class="input"/>
+
+    <div class="save-buttons">
+      <button class="btn success" onclick="saveCareer(1)">Save to Slot 1</button>
+      <button class="btn success" onclick="saveCareer(2)">Save to Slot 2</button>
+    </div>
+
+    <div class="import-export">
+      <button class="btn export" onclick="exportCareer()">📤 Export</button>
+      <input type="file" onchange="importCareer(event)" />
+    </div>
+  </div>
+
+<script src="./data/teams.js"></script>
+<script src="./js/career.js"></script>
+</body>
+</html>
