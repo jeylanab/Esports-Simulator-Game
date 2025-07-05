@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import custom font */
+
+/* RESET + GLOBAL */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #fffffff5;
+  --secondary-color: rgba(0, 0, 0, 0.98);
+  --tertiary-color: #62e847;
+  --other-color: #0d0d0d;
+  --primary-font-family: 'Montserrat', sans-serif;
+  --spacing-unit: 1rem;
+  --border-radius: 8px;
+  --background-image: url("data:image/svg+xml,%3Csvg ... (your full image stays)%3C/svg%3E");
+}
+
+body {
+  background-color: #011103;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+h1, h2, h3 {
+  text-align: center;
+}
+.input, .btn {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+}
+.btn {
+  cursor: pointer;
+}
+.primary { background-color: #00bcd4; color: white; }
+.secondary { background-color: #333; color: white; }
+.success { background-color: green; color: white; }
+.export { background-color: orange; color: white; }
+.team-card {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+}
+.team-logo {
+  width: 100px;
+  height: auto;
+  display: block;
+  margin: 10px auto;
+}
+.player-list {
+  list-style: none;
+  padding: 0;
+}
+.player-list li {
+  border-bottom: 1px solid #333;
+  padding: 5px 0;
+}

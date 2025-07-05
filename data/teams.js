@@ -1,7 +1,7 @@
 const teams = {
   "M80": {
     "region": "NA",
-    "logo": "assets\logos\M80_Esports_2024_full_darkmode.png",
+    "logo": "M80_Esports_2024_full_darkmode.png",
     "players": [
       {
         "name": "Kyno",
@@ -47,7 +47,7 @@ const teams = {
   },
   "Spacestation Gaming": {
     "region": "NA",
-    "logo": "assets\logos\Spacestation_Gaming_2021_full_allmode.png",
+    "logo": "Spacestation_Gaming_2021_full_allmode.png",
     "players": [
       {
         "name": "Fultz",
@@ -93,7 +93,7 @@ const teams = {
   },
   "Wildcard": {
     "region": "NA",
-    "logo": "assets\logos\Wildcard_2024_full_darkmode.png",
+    "logo": "Wildcard_2024_full_darkmode.png",
     "players": [
       {
         "name": "Kanzen",
@@ -139,7 +139,7 @@ const teams = {
   },
   "Cloud9": {
     "region": "NA",
-    "logo": "assets\logos\Cloud9_2023_full_allmode.png",
+    "logo": "Cloud9_2023_full_allmode.png",
     "players": [
       {
         "name": "Dream",
@@ -185,7 +185,7 @@ const teams = {
   },
   "Oxygen Esports": {
     "region": "NA",
-    "logo": "assets\logos\teamgenji-28b3148a3f8e483a8f065f148a63cd7d.png",
+    "logo": "teamgenji-28b3148a3f8e483a8f065f148a63cd7d.png",
     "players": [
       {
         "name": "GMZ",
@@ -231,7 +231,7 @@ const teams = {
   },
   "LFO": {
     "region": "NA",
-    "logo": "assets\logos\LFO.png",
+    "logo": "LFO.png",
     "players": [
       {
         "name": "Beeno",
@@ -277,7 +277,7 @@ const teams = {
   },
   "DarkZero": {
     "region": "NA",
-    "logo": "assets\logos\DarkZero_2023_full_darkmode.png",
+    "logo": "DarkZero_2023_full_darkmode.png",
     "players": [
       {
         "name": "njr",
@@ -323,7 +323,7 @@ const teams = {
   },
   "Shopify Rebellion": {
     "region": "NA",
-    "logo": "assets\logos\Shopify_Rebellion_text_2023_darkmode.png",
+    "logo": "Shopify_Rebellion_text_2023_darkmode.png",
     "players": [
       {
         "name": "Ambi",
@@ -369,7 +369,7 @@ const teams = {
   },
   "Team Cruelty": {
     "region": "NA",
-    "logo": "assets\logos\Team_Cruelty_2023_allmode.png",
+    "logo": "Team_Cruelty_2023_allmode.png",
     "players": [
       {
         "name": "Ivan",
@@ -415,7 +415,7 @@ const teams = {
   },
   "ENVY": {
     "region": "NA",
-    "logo": "assets\logos\Team_Envy_2018_darkmode.png",
+    "logo": "Team_Envy_2018_darkmode.png",
     "players": [
       {
         "name": "Emilio",
@@ -461,7 +461,7 @@ const teams = {
   },
   "G2 Esports": {
     "region": "MENA",
-    "logo": "assets\logos\G2-Esports-2020-Logo_87bf0678-e67f-4834-8b09-e56137ffaa80.png",
+    "logo": "G2-Esports-2020-Logo_87bf0678-e67f-4834-8b09-e56137ffaa80.png",
     "players": [
       {
         "name": "Alem4o",
@@ -507,7 +507,7 @@ const teams = {
   },
   "Team BDS": {
     "region": "MENA",
-    "logo": "assets\logos\Team_BDS_2021_full_allmode.png",
+    "logo": "Team_BDS_2021_full_allmode.png",
     "players": [
       {
         "name": "Freq",
@@ -553,7 +553,7 @@ const teams = {
   },
   "Team Secret": {
     "region": "MENA",
-    "logo": "assets\logos\Team_Secret_full_darkmode.png",
+    "logo": "Team_Secret_full_darkmode.png",
     "players": [
       {
         "name": "Savage",
@@ -599,7 +599,7 @@ const teams = {
   },
   "Fnatic": {
     "region": "MENA",
-    "logo": "assets\logos\Fnatic_2020_full_darkmode.png",
+    "logo": "Fnatic_2020_full_darkmode.png",
     "players": [
       {
         "name": "Deapek",
@@ -645,7 +645,7 @@ const teams = {
   },
   "Team Falcons": {
     "region": "MENA",
-    "logo": "assets\logos\Team_Falcons_2022_full_darkmode.png",
+    "logo": "Team_Falcons_2022_full_darkmode.png",
     "players": [
       {
         "name": "BriD",
@@ -691,7 +691,7 @@ const teams = {
   },
   "Wolves Esports": {
     "region": "MENA",
-    "logo": "assets\logos\Wolves_Esports_allmode.png",
+    "logo": "Wolves_Esports_allmode.png",
     "players": [
       {
         "name": "azzr",
@@ -737,7 +737,7 @@ const teams = {
   },
   "Virtus.pro": {
     "region": "MENA",
-    "logo": "assets\logos\Virtus.pro_2019_allmode.png",
+    "logo": "Virtus.pro_2019_allmode.png",
     "players": [
       {
         "name": "p4sh4",
@@ -783,7 +783,7 @@ const teams = {
   },
   "Gen.G Esports": {
     "region": "MENA",
-    "logo": "assets\logos\Gen.G_Esports_2019_full_darkmode.png",
+    "logo": "Gen.G_Esports_2019_full_darkmode.png",
     "players": [
       {
         "name": "Asa",
@@ -829,7 +829,7 @@ const teams = {
   },
   "MACKO Esports": {
     "region": "MENA",
-    "logo": "assets\logos\MACKO_Esports_2022_allmode.png",
+    "logo": "MACKO_Esports_2022_allmode.png",
     "players": [
       {
         "name": "Aqui",
@@ -875,7 +875,7 @@ const teams = {
   },
   "WYLDE": {
     "region": "MENA",
-    "logo": "assets\logos\WYLDE_2024_July_allmode.png",
+    "logo": "WYLDE_2024_July_allmode.png",
     "players": [
       {
         "name": "Bmzy",
@@ -921,7 +921,7 @@ const teams = {
   },
   "FURIA": {
     "region": "SA",
-    "logo": "assets\logos\FURIA_Esports_full_darkmode.png",
+    "logo": "FURIA_Esports_full_darkmode.png",
     "players": [
       {
         "name": "FelipoX",
@@ -967,7 +967,7 @@ const teams = {
   },
   "w7m esports": {
     "region": "SA",
-    "logo": "assets\logos\W7M_esports_full_allmode.png",
+    "logo": "W7M_esports_full_allmode.png",
     "players": [
       {
         "name": "Dodez",
@@ -1013,7 +1013,7 @@ const teams = {
   },
   "FaZe Clan": {
     "region": "SA",
-    "logo": "assets\logos\FaZe_Clan_2025_full_darkmode.png",
+    "logo": "FaZe_Clan_2025_full_darkmode.png",
     "players": [
       {
         "name": "Cyber",
@@ -1059,7 +1059,7 @@ const teams = {
   },
   "Team Liquid": {
     "region": "SA",
-    "logo": "assets\logos\Team_Liquid_2024_full_darkmode.png",
+    "logo": "Team_Liquid_2024_full_darkmode.png",
     "players": [
       {
         "name": "nesk",
@@ -1105,7 +1105,7 @@ const teams = {
   },
   "LOUD": {
     "region": "SA",
-    "logo": "assets\logos\LOUD_full_allmode.png",
+    "logo": "LOUD_full_allmode.png",
     "players": [
       {
         "name": "Bassetto",
@@ -1151,7 +1151,7 @@ const teams = {
   },
   "9z Team": {
     "region": "SA",
-    "logo": "assets\logos\_9z_Team_2024_darkmode.png",
+    "logo": "_9z_Team_2024_darkmode.png",
     "players": [
       {
         "name": "Jow",
@@ -1197,7 +1197,7 @@ const teams = {
   },
   "Black Dragons": {
     "region": "SA",
-    "logo": "assets\logos\Black_Dragons_2025_darkmode.png",
+    "logo": "Black_Dragons_2025_darkmode.png",
     "players": [
       {
         "name": "Hornetao",
@@ -1243,7 +1243,7 @@ const teams = {
   },
   "Ninjas in Pyjamas": {
     "region": "SA",
-    "logo": "assets\logos\Ninjas_in_Pyjamas_2021_full_darkmode.png",
+    "logo": "Ninjas_in_Pyjamas_2021_full_darkmode.png",
     "players": [
       {
         "name": "pino",
@@ -1289,7 +1289,7 @@ const teams = {
   },
   "LOS": {
     "region": "SA",
-    "logo": "assets\logos\LOS_full_allmode.png",
+    "logo": "LOS_full_allmode.png",
     "players": [
       {
         "name": "fxrias",
@@ -1335,7 +1335,7 @@ const teams = {
   },
   "ENX": {
     "region": "SA",
-    "logo": "assets\logos\ENX_allmode.png",
+    "logo": "ENX_allmode.png",
     "players": [
       {
         "name": "AngelzZ",
@@ -1381,7 +1381,7 @@ const teams = {
   },
   "SCARZ": {
     "region": "APAC",
-    "logo": "assets\logos\SCARZ_2022_full_darkmode.png",
+    "logo": "SCARZ_2022_full_darkmode.png",
     "players": [
       {
         "name": "FishLike",
@@ -1427,7 +1427,7 @@ const teams = {
   },
   "CAG Osaka": {
     "region": "APAC",
-    "logo": "assets\logos\CAG_Osaka_full_darkmode.png",
+    "logo": "CAG_Osaka_full_darkmode.png",
     "players": [
       {
         "name": "Anitun",
@@ -1473,7 +1473,7 @@ const teams = {
   },
   "FearX": {
     "region": "APAC",
-    "logo": "assets\logos\FEARX_2025_full_allmode.png",
+    "logo": "FEARX_2025_full_allmode.png",
     "players": [
       {
         "name": "GoodBoy",
@@ -1519,7 +1519,7 @@ const teams = {
   },
   "PSG TALON": {
     "region": "APAC",
-    "logo": "assets\logos\PSG_Talon_2024_full_darkmode.png",
+    "logo": "PSG_Talon_2024_full_darkmode.png",
     "players": [
       {
         "name": "Misa",
@@ -1565,7 +1565,7 @@ const teams = {
   },
   "Dplus": {
     "region": "APAC",
-    "logo": "assets\logos\Dplus_darkmode.png",
+    "logo": "Dplus_darkmode.png",
     "players": [
       {
         "name": "Bullet1",
@@ -1611,7 +1611,7 @@ const teams = {
   },
   "Elevate": {
     "region": "APAC",
-    "logo": "assets\logos\Elevate_2020_full_darkmode.png",
+    "logo": "Elevate_2020_full_darkmode.png",
     "players": [
       {
         "name": "ion",
@@ -1657,7 +1657,7 @@ const teams = {
   },
   "FURY": {
     "region": "APAC",
-    "logo": "assets\logos\FURY_2020_allmode.png",
+    "logo": "FURY_2020_allmode.png",
     "players": [
       {
         "name": "Darkk",
@@ -1703,7 +1703,7 @@ const teams = {
   },
   "Weibo Gaming": {
     "region": "APAC",
-    "logo": "assets\logos\Weibo_Gaming_full_darkmode.png",
+    "logo": "Weibo_Gaming_full_darkmode.png",
     "players": [
       {
         "name": "Ape",
@@ -1749,7 +1749,7 @@ const teams = {
   },
   "Gaimin Gladiators": {
     "region": "APAC",
-    "logo": "assets\logos\Gaimin_Gladiators_2022_allmode.png",
+    "logo": "Gaimin_Gladiators_2022_allmode.png",
     "players": [
       {
         "name": "Brendo",
@@ -1795,7 +1795,7 @@ const teams = {
   },
   "Outlast": {
     "region": "APAC",
-    "logo": "assets\logos\Outlast_2024_darkmode.png",
+    "logo": "Outlast_2024_darkmode.png",
     "players": [
       {
         "name": "Bakezri",
@@ -1840,3 +1840,5 @@ const teams = {
     ]
   }
 };
+
+export default teams;
