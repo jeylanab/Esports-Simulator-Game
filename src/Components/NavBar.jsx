@@ -4,7 +4,7 @@ import React from 'react';
 const NavBar = ({ setScreen, setActiveView }) => {
   return (
     <nav className="bg-black text-white px-4 py-3 flex justify-between items-center shadow-md">
-      <div className="text-xl font-bold">🕹️ R6 Esports Manager</div>
+      <div className="text-xl text-cyan-400 font-bold">R6 Esports Manager</div>
       <div className="space-x-4 text-sm sm:text-base">
         <button onClick={() => setActiveView('calendar')} className="hover:text-blue-400">
           Calendar
