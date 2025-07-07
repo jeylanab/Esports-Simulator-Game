@@ -38,7 +38,7 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
     alert(`Career saved to Slot ${slot}`);
     setSlots({ ...slots, [`slot${slot}`]: true });
 
-    // ✅ Trigger calendar view
+    //Trigger calendar view
     onCareerCreated?.();
   };
 
@@ -66,20 +66,20 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
 
   return (
     <div className="bg-gray-900 text-white p-6 rounded-xl max-w-4xl mx-auto shadow-lg">
-      <h2 className="text-2xl font-bold text-center mb-6">🧑‍💼 Career Setup</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">Career Setup</h2>
 
       <input
         type="text"
-        placeholder="👨‍🏫 Coach Name"
+        placeholder=" Coach Name"
         value={coach}
         onChange={(e) => setCoach(e.target.value)}
         className="w-full p-2 mb-6 rounded bg-gray-800 border border-gray-700"
       />
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2  gap-6">
         {/* Real Team Section */}
         <div>
-          <h3 className="text-lg font-semibold mb-1">📌 Choose Real Team</h3>
+          <h3 className="text-lg font-semibold text-start mb-1">Choose Real Team</h3>
           <p className="text-sm text-gray-400 mb-2">Pick an existing professional team from the list.</p>
           <select
             value={realTeam}
@@ -89,7 +89,7 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
             }}
             className="w-full p-2 rounded bg-gray-800 border border-gray-700 mb-4"
           >
-            <option disabled value="">-- Select a team --</option>
+            <option disabled value="">Select a team</option>
             {Object.keys(teams).map(name => (
               <option key={name} value={name}>{name}</option>
             ))}
@@ -105,7 +105,7 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
 
       {/* Custom Team Section */}
       <div className="mt-8">
-        <h3 className="text-lg font-semibold mb-1">🎨 Create Custom Team</h3>
+        <h3 className="text-lg font-semibold text-start mb-1"> Create Custom Team</h3>
         <p className="text-sm text-gray-400 mb-2">Add your own team name and logo instead.</p>
         <input
           type="text"
@@ -128,18 +128,18 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
 
       {/* Save Buttons */}
       <div className="flex flex-wrap justify-center gap-4 mb-6">
-        <button className="bg-green-600 px-5 py-2 rounded" onClick={() => handleSave(1)}>
-          💾 Save Slot 1
+        <button className="bg-cyan-600 px-5 py-2 rounded" onClick={() => handleSave(1)}>
+           Save Slot 1
         </button>
-        <button className="bg-green-600 px-5 py-2 rounded" onClick={() => handleSave(2)}>
-          💾 Save Slot 2
+        <button className="bg-cyan-600 px-5 py-2 rounded" onClick={() => handleSave(2)}>
+          Save Slot 2
         </button>
       </div>
 
       {/* Export & Import */}
       <div className="flex flex-wrap justify-center items-center gap-4 mb-6">
-        <button className="bg-orange-500 px-5 py-2 rounded" onClick={exportCareers}>
-          📤 Export
+        <button className="bg-cyan-500 px-5 py-2 rounded" onClick={exportCareers}>
+          Export
         </button>
         <input
           type="file"
@@ -152,12 +152,12 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
       <div className="flex justify-center gap-4 mt-2">
         {slots.slot1 && (
           <button className="bg-red-600 px-5 py-2 rounded" onClick={() => handleDelete(1)}>
-            🗑️ Clear Slot 1
+             Clear Slot 1
           </button>
         )}
         {slots.slot2 && (
           <button className="bg-red-600 px-5 py-2 rounded" onClick={() => handleDelete(2)}>
-            🗑️ Clear Slot 2
+             Clear Slot 2
           </button>
         )}
       </div>

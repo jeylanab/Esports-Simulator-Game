@@ -2,15 +2,18 @@ import React from 'react';
 
 const HomeScreen = ({ onStart, onLoadSlot1, onLoadSlot2 }) => (
   <div className="flex flex-col items-center justify-center min-h-screen  text-white p-6">
-    <h1 className="text-3xl sm:text-4xl font-bold mb-8 text-center">
-      🎮 R6S Esports Manager
+    <h1 className="text-2xl sm:text-3xl font-medium mb-8 text-center">
+      Rainbow Six Siege
+    </h1>
+        <h1 className="text-3xl sm:text-6xl font-bold mb-8 text-center">
+      Esports Manager
     </h1>
 
     <button
       className="bg-cyan-500 hover:bg-cyan-600 px-6 py-3 rounded text-white text-lg mb-6 transition"
       onClick={onStart}
     >
-      🚀 Start New Career
+      Start New Career
     </button>
 
     <div className="flex flex-col sm:flex-row gap-4">
