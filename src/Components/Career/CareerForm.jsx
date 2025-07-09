@@ -1,3 +1,4 @@
+// src/Components/Career/CareerForm.jsx
 import React, { useEffect, useState } from 'react';
 import { saveCareer, exportCareers, importCareers } from '../../Utils/storage';
 
@@ -21,16 +22,19 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
   }, [savedData]);
 
   const handleSave = (slot) => {
-    if (!coach || (!realTeam && !customTeam)) {
+    const selectedTeam = customTeam || realTeam;
+
+    if (!coach || !selectedTeam) {
       alert('Coach name and a team (real/custom) are required.');
       return;
     }
+
     const existing = localStorage.getItem(`career_slot_${slot}`);
     if (existing && !confirm(`Slot ${slot} exists. Overwrite?`)) return;
 
     saveCareer(slot, {
       coach,
-      team: customTeam || realTeam,
+      team: selectedTeam,
       customLogo,
       timestamp: Date.now(),
     });
@@ -38,8 +42,7 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
     alert(`Career saved to Slot ${slot}`);
     setSlots({ ...slots, [`slot${slot}`]: true });
 
-    //Trigger calendar view
-    onCareerCreated?.();
+    onCareerCreated?.(selectedTeam); // ✅ pass selected team
   };
 
   const handleDelete = (slot) => {
@@ -76,11 +79,10 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
         className="w-full p-2 mb-6 rounded bg-gray-800 border border-gray-700"
       />
 
-      <div className="grid md:grid-cols-2  gap-6">
-        {/* Real Team Section */}
+      <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <h3 className="text-lg font-semibold text-start mb-1">Choose Real Team</h3>
-          <p className="text-sm text-gray-400 mb-2">Pick an existing professional team from the list.</p>
+          <h3 className="text-lg font-semibold mb-1">Choose Real Team</h3>
+          <p className="text-sm text-gray-400 mb-2">Pick a real team.</p>
           <select
             value={realTeam}
             onChange={(e) => {
@@ -96,17 +98,15 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
           </select>
         </div>
 
-        {/* Player Preview */}
         <div className="bg-gray-800 border border-gray-700 rounded p-4 min-h-[150px]">
           <h4 className="text-sm text-gray-300 mb-2">Team Preview</h4>
           {teamPreview}
         </div>
       </div>
 
-      {/* Custom Team Section */}
       <div className="mt-8">
-        <h3 className="text-lg font-semibold text-start mb-1"> Create Custom Team</h3>
-        <p className="text-sm text-gray-400 mb-2">Add your own team name and logo instead.</p>
+        <h3 className="text-lg font-semibold mb-1">Create Custom Team</h3>
+        <p className="text-sm text-gray-400 mb-2">Or create your own team instead.</p>
         <input
           type="text"
           placeholder="Custom Team Name"
@@ -126,17 +126,15 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
         />
       </div>
 
-      {/* Save Buttons */}
       <div className="flex flex-wrap justify-center gap-4 mb-6">
         <button className="bg-cyan-600 px-5 py-2 rounded" onClick={() => handleSave(1)}>
-           Save Slot 1
+          Save Slot 1
         </button>
         <button className="bg-cyan-600 px-5 py-2 rounded" onClick={() => handleSave(2)}>
           Save Slot 2
         </button>
       </div>
 
-      {/* Export & Import */}
       <div className="flex flex-wrap justify-center items-center gap-4 mb-6">
         <button className="bg-cyan-500 px-5 py-2 rounded" onClick={exportCareers}>
           Export
@@ -148,16 +146,15 @@ const CareerForm = ({ teams, onPreview, teamPreview, onBack, savedData, onCareer
         />
       </div>
 
-      {/* Clear Buttons */}
       <div className="flex justify-center gap-4 mt-2">
         {slots.slot1 && (
           <button className="bg-red-600 px-5 py-2 rounded" onClick={() => handleDelete(1)}>
-             Clear Slot 1
+            Clear Slot 1
           </button>
         )}
         {slots.slot2 && (
           <button className="bg-red-600 px-5 py-2 rounded" onClick={() => handleDelete(2)}>
-             Clear Slot 2
+            Clear Slot 2
           </button>
         )}
       </div>

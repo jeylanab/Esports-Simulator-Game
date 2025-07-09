@@ -6,21 +6,24 @@ import TeamPreview from './Components/TeamPreview';
 import InboxView from './Components/Inbox/InboxView';
 import CalendarView from './Components/Calendar/CalendarView';
 import NavBar from './Components/NavBar';
+import TransferWindow from './Components/Transfers/TransferWindow';
+import MyTeam from './Components/MyTeam/MyTeam';
 
 import { CalendarProvider } from './Components/Calendar/CalendarContext';
-import { GameProvider } from './Components/Game/GameContext';
+import { GameProvider, useGame } from './Components/Game/GameContext';
 import { useCalendarEffects } from './Components/Calendar/useCalendarEffects';
 
 import teams from '../data/teams';
 
 const AppContent = () => {
-  const [screen, setScreen] = useState('home'); // home or career
-  const [careerStarted, setCareerStarted] = useState(false); // setup finished?
-  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [screen, setScreen] = useState('home');
+  const [careerStarted, setCareerStarted] = useState(false);
   const [savedData, setSavedData] = useState(null);
-  const [activeView, setActiveView] = useState('calendar'); // inbox | calendar | etc.
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [activeView, setActiveView] = useState('calendar');
 
-  useCalendarEffects(); // hook for reacting to calendar phases
+  const { setUserTeam } = useGame();
+  useCalendarEffects();
 
   const loadCareer = (slot) => {
     const saved = localStorage.getItem(`career_slot_${slot}`);
@@ -28,12 +31,17 @@ const AppContent = () => {
       alert(`No data found in slot ${slot}`);
       return null;
     }
+
     const data = JSON.parse(saved);
     setSavedData(data);
     setSelectedTeam(data.team);
     setScreen('career');
-    setCareerStarted(true); // fully setup
+    setCareerStarted(true);
     setActiveView('calendar');
+
+    const loadedPlayers = Array.isArray(teams[data.team]) ? teams[data.team] : [];
+    setUserTeam(loadedPlayers);
+
     return data;
   };
 
@@ -48,7 +56,7 @@ const AppContent = () => {
         <HomeScreen
           onStart={() => {
             setScreen('career');
-            setCareerStarted(false); // user must create new team
+            setCareerStarted(false);
           }}
           onLoadSlot1={() => handleLoadSlot(1)}
           onLoadSlot2={() => handleLoadSlot(2)}
@@ -75,16 +83,20 @@ const AppContent = () => {
                 )
               }
               savedData={savedData}
-              onCareerCreated={() => {
+              onCareerCreated={(teamName) => {
                 setCareerStarted(true);
-                setActiveView('calendar'); // default to calendar after setup
+                setActiveView('calendar');
+                setSelectedTeam(teamName);
+                const initialPlayers = Array.isArray(teams[teamName]) ? teams[teamName] : [];
+                setUserTeam(initialPlayers);
               }}
             />
           ) : (
             <>
               {activeView === 'calendar' && <CalendarView />}
               {activeView === 'inbox' && <InboxView />}
-              {/* add more views here if needed */}
+              {activeView === 'transfers' && <TransferWindow />}
+              {activeView === 'team' && <MyTeam teamName={selectedTeam} />}
             </>
           )}
         </>
