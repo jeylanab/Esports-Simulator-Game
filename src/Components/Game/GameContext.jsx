@@ -1,6 +1,8 @@
 // src/Components/Game/GameContext.jsx
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { parseDate, formatDate, getNextDate } from '../../Utils/dateUtils';
+import allTeams from '../../../data/teams'; // ✅ Make sure teams.js is in this path
 
 const GameContext = createContext();
 export const useGame = () => useContext(GameContext);
@@ -13,12 +15,32 @@ export const GameProvider = ({ children }) => {
   // 🗓️ Simulation starts from Jan 1, 2026
   const [currentDate, setCurrentDate] = useState("2026-01-01");
 
+  // ✅ Group real teams by region and add league stats
+  const [teamData, setTeamData] = useState(() => {
+    const regions = {};
+    for (const teamName in allTeams) {
+      const team = allTeams[teamName];
+      const entry = {
+        name: teamName,
+        region: team.region,
+        logo: team.logo,
+        players: team.players,
+        wins: 0,
+        losses: 0,
+        points: 0,
+      };
+      if (!regions[team.region]) regions[team.region] = [];
+      regions[team.region].push(entry);
+    }
+    return regions;
+  });
+
   const advanceDay = () => {
     const next = getNextDate(currentDate);
     setCurrentDate(next);
   };
 
-  // 🎯 Auto inbox triggers (dates must be in 'YYYY-MM-DD')
+  // 📨 Auto inbox triggers by date
   useEffect(() => {
     const eventTriggers = {
       "2026-01-03": {
@@ -57,6 +79,7 @@ export const GameProvider = ({ children }) => {
     }
   }, [currentDate]);
 
+  // ✅ Signing free agents
   function signPlayer(player) {
     const alreadySigned = userTeam.some((p) => p.Player === player.Player);
     const cost = 250_000;
@@ -96,6 +119,8 @@ export const GameProvider = ({ children }) => {
         currentDate,
         setCurrentDate,
         advanceDay,
+        teamData,       // ✅ new: regional teams with stats
+        setTeamData,    // ✅ new: update for simulation
       }}
     >
       {children}

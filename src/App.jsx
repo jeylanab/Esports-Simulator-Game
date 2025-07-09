@@ -8,6 +8,8 @@ import CalendarView from './Components/Calendar/CalendarView';
 import NavBar from './Components/NavBar';
 import TransferWindow from './Components/Transfers/TransferWindow';
 import MyTeam from './Components/MyTeam/MyTeam';
+import MatchSimulator from './Components/Simulation/MatchSimulator';
+import LeagueView from './Components/League/LeagueView';
 
 import { CalendarProvider } from './Components/Calendar/CalendarContext';
 import { GameProvider, useGame } from './Components/Game/GameContext';
@@ -96,7 +98,10 @@ const AppContent = () => {
               {activeView === 'calendar' && <CalendarView />}
               {activeView === 'inbox' && <InboxView />}
               {activeView === 'transfers' && <TransferWindow />}
-              {activeView === 'team' && <MyTeam teamName={selectedTeam} />}
+                {activeView === 'team' && <MyTeam teamName={selectedTeam} />}
+                {activeView === 'simulator' && <MatchSimulator opponentTeam={selectedTeam} />}
+                {activeView === 'league' && <LeagueView />}
+
             </>
           )}
         </>

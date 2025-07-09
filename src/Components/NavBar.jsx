@@ -1,23 +1,27 @@
-// src/Components/NavBar.jsx
+// src/Components/Layout/NavBar.jsx (or wherever you keep it)
+
 import React from 'react';
 
 const NavBar = ({ setScreen, setActiveView }) => {
   const navItems = [
     { key: 'calendar', label: '📅 Calendar' },
     { key: 'inbox', label: '📨 Inbox' },
-    { key: 'team', label: '🧑‍🤝‍🧑 My Team' }, // ✅ fixed key to match actual view
+    { key: 'team', label: '🧑‍🤝‍🧑 My Team' },
     { key: 'transfers', label: '🔁 Transfers' },
-    { key: 'stats', label: '📊 Stats' }, // Placeholder if needed later
+    { key: 'simulator', label: '🕹 Match Sim' },      // Match Simulator
+    { key: 'league', label: '📊 League' },            // ✅ NEW League View
+    { key: 'tournaments', label: '🏆 Tournaments' },  // ✅ NEW Tournament View
+    { key: 'stats', label: '📈 Awards/Stats' },       // ✅ NEW Stats / Awards View
   ];
 
   return (
     <nav className="bg-black text-white px-4 py-3 flex justify-between items-center shadow-lg border-b border-gray-700">
-      {/* Left: Brand / Title */}
+      {/* Left: App Title */}
       <div className="text-xl sm:text-2xl font-extrabold text-cyan-400 tracking-tight">
-        R6 Esports Manager
+        R6S Manager
       </div>
 
-      {/* Right: Navigation buttons */}
+      {/* Right: Navigation Buttons */}
       <div className="space-x-3 text-sm sm:text-base flex flex-wrap items-center">
         {navItems.map((item) => (
           <button
@@ -29,6 +33,7 @@ const NavBar = ({ setScreen, setActiveView }) => {
           </button>
         ))}
 
+        {/* Exit Button */}
         <button
           onClick={() => setScreen('home')}
           className="text-red-400 hover:text-red-300 font-semibold"
