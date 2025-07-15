@@ -6,7 +6,7 @@ const CalendarContext = createContext();
 export const useCalendar = () => useContext(CalendarContext);
 
 export const CalendarProvider = ({ children }) => {
-  const [currentDate, setCurrentDate] = useState(new Date('2026-01-01'));
+  const [currentDate, setCurrentDate] = useState(new Date('2026-04-27'));
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [currentPhase, setCurrentPhase] = useState(seasonCalendar2026[0]);
 

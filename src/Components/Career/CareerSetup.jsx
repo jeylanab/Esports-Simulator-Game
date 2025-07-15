@@ -1,25 +1,17 @@
-// CareerSetup.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import CareerForm from './CareerForm';
-import CalendarView from '../Calendar/CalendarView'; // 👈 Import your calendar component
 
-const CareerSetup = ({ teams, onPreview, onBack, teamPreview, savedData }) => {
-  const [careerCreated, setCareerCreated] = useState(!!savedData); // true if data loaded
-
+const CareerSetup = ({ teams, onPreview, onBack, teamPreview, savedData, onCareerCreated }) => {
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
-      {!careerCreated ? (
-        <CareerForm
-          teams={teams}
-          onPreview={onPreview}
-          teamPreview={teamPreview}
-          onBack={onBack}
-          savedData={savedData}
-          onCareerCreated={() => setCareerCreated(true)} // ✅ Pass callback to CareerForm
-        />
-      ) : (
-        <CalendarView /> // ✅ Show Calendar after career is created
-      )}
+      <CareerForm
+        teams={teams}
+        onPreview={onPreview}
+        teamPreview={teamPreview}
+        onBack={onBack}
+        savedData={savedData}
+        onCareerCreated={onCareerCreated} // 👈 Control stays in App.jsx
+      />
     </div>
   );
 };

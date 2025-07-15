@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState } from 'react';
 import HomeScreen from './Components/HomeScreen';
 import CareerSetup from './Components/Career/CareerSetup';
@@ -9,10 +8,13 @@ import NavBar from './Components/NavBar';
 import TransferWindow from './Components/Transfers/TransferWindow';
 import MyTeam from './Components/MyTeam/MyTeam';
 import MatchSimulator from './Components/Simulation/MatchSimulator';
+import LeagueMenu from './Components/League/LeagueMenu';
 import LeagueView from './Components/League/LeagueView';
+import TournamentsHome from './Components/Tournaments/TournamentsHome';
 
 import { CalendarProvider } from './Components/Calendar/CalendarContext';
 import { GameProvider, useGame } from './Components/Game/GameContext';
+import { TournamentProvider } from './Components/Tournaments/TournamentContext';
 import { useCalendarEffects } from './Components/Calendar/useCalendarEffects';
 
 import teams from '../data/teams';
@@ -23,6 +25,7 @@ const AppContent = () => {
   const [savedData, setSavedData] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [activeView, setActiveView] = useState('calendar');
+  const [currentLeaguePhase, setCurrentLeaguePhase] = useState(null);
 
   const { setUserTeam } = useGame();
   useCalendarEffects();
@@ -58,7 +61,7 @@ const AppContent = () => {
         <HomeScreen
           onStart={() => {
             setScreen('career');
-            setCareerStarted(false);
+            setCareerStarted(false); // ⛳ reset for new creation
           }}
           onLoadSlot1={() => handleLoadSlot(1)}
           onLoadSlot2={() => handleLoadSlot(2)}
@@ -67,10 +70,12 @@ const AppContent = () => {
 
       {screen === 'career' && (
         <>
+          {/* NavBar only shown if a career has started */}
           {careerStarted && (
             <NavBar setScreen={setScreen} setActiveView={setActiveView} />
           )}
 
+          {/* Career not started = show creation form */}
           {!careerStarted ? (
             <CareerSetup
               teams={teams}
@@ -98,10 +103,18 @@ const AppContent = () => {
               {activeView === 'calendar' && <CalendarView />}
               {activeView === 'inbox' && <InboxView />}
               {activeView === 'transfers' && <TransferWindow />}
-                {activeView === 'team' && <MyTeam teamName={selectedTeam} />}
-                {activeView === 'simulator' && <MatchSimulator opponentTeam={selectedTeam} />}
-                {activeView === 'league' && <LeagueView />}
-
+              {activeView === 'team' && <MyTeam teamName={selectedTeam} />}
+              {activeView === 'simulator' && <MatchSimulator opponentTeam={selectedTeam} />}
+              {activeView === 'league' && (
+                <LeagueMenu
+                  setActiveView={setActiveView}
+                  setCurrentLeaguePhase={setCurrentLeaguePhase}
+                />
+              )}
+              {activeView === 'leagueView' && (
+                <LeagueView leaguePhaseKey={currentLeaguePhase} />
+              )}
+              {activeView === 'tournaments' && <TournamentsHome />}
             </>
           )}
         </>
@@ -113,7 +126,9 @@ const AppContent = () => {
 const App = () => (
   <CalendarProvider>
     <GameProvider>
-      <AppContent />
+      <TournamentProvider>
+        <AppContent />
+      </TournamentProvider>
     </GameProvider>
   </CalendarProvider>
 );

@@ -1,8 +1,7 @@
 // src/Components/Game/GameContext.jsx
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { parseDate, formatDate, getNextDate } from '../../Utils/dateUtils';
-import allTeams from '../../../data/teams'; // ✅ Make sure teams.js is in this path
+import { getNextDate } from '../../Utils/dateUtils';
+import allTeams from '../../../data/teams';
 
 const GameContext = createContext();
 export const useGame = () => useContext(GameContext);
@@ -11,11 +10,47 @@ export const GameProvider = ({ children }) => {
   const [inbox, setInbox] = useState([]);
   const [userTeam, setUserTeam] = useState([]);
   const [budget, setBudget] = useState(1_000_000);
-
-  // 🗓️ Simulation starts from Jan 1, 2026
   const [currentDate, setCurrentDate] = useState("2026-01-01");
 
-  // ✅ Group real teams by region and add league stats
+  // ✅ Normalize any player object to a unified structure
+  const normalizePlayer = (player) => ({
+    name: player.name || player.Player || 'Unknown',
+    rating: player.rating ?? player.Overall ?? 70,
+    iq: player.iq ?? player.GameSense ?? 70,
+    aim: player.aim ?? player.Aim ?? 70,
+    mechanics: player.mechanics ?? player.Mechanics ?? 70,
+    clutch: player.clutch ?? player.Clutch ?? 70,
+    Role: player.Role || '',
+    Country: player.Country || '',
+    Age: player.Age || '',
+  });
+
+  // ✅ Load base players and store them if not yet saved
+  useEffect(() => {
+    const savedTeam = localStorage.getItem('user_team');
+    const savedBudget = localStorage.getItem('user_budget');
+    const savedSlot = localStorage.getItem('career_slot_1');
+
+    if (savedTeam) {
+      const parsed = JSON.parse(savedTeam);
+      setUserTeam(parsed.map(normalizePlayer));
+    } else if (savedSlot) {
+      const slot = JSON.parse(savedSlot);
+      const basePlayers = allTeams[slot.team]?.players || [];
+      const normalizedBase = basePlayers.map(normalizePlayer);
+      setUserTeam(normalizedBase);
+      localStorage.setItem('user_team', JSON.stringify(normalizedBase));
+    }
+
+    if (savedBudget) {
+      setBudget(Number(savedBudget));
+    } else {
+      setBudget(1_000_000);
+      localStorage.setItem('user_budget', '1000000');
+    }
+  }, []);
+
+  // ✅ Group teams by region and initialize league data
   const [teamData, setTeamData] = useState(() => {
     const regions = {};
     for (const teamName in allTeams) {
@@ -40,7 +75,6 @@ export const GameProvider = ({ children }) => {
     setCurrentDate(next);
   };
 
-  // 📨 Auto inbox triggers by date
   useEffect(() => {
     const eventTriggers = {
       "2026-01-03": {
@@ -79,31 +113,44 @@ export const GameProvider = ({ children }) => {
     }
   }, [currentDate]);
 
-  // ✅ Signing free agents
+  // ✅ Sign player logic
   function signPlayer(player) {
-    const alreadySigned = userTeam.some((p) => p.Player === player.Player);
+    const normalized = normalizePlayer(player);
+    const alreadySigned = userTeam.some(p => p.name === normalized.name);
     const cost = 250_000;
 
-    if (alreadySigned) {
-      alert(`${player.Player} is already on your team.`);
+    if (alreadySigned || budget < cost) {
+      setInbox((prev) => [
+        {
+          key: `fail_${normalized.name}`,
+          title: alreadySigned ? "⚠️ Already Signed" : "💸 Not Enough Budget",
+          body: alreadySigned
+            ? `${normalized.name} is already on your team.`
+            : `You don’t have enough budget to sign ${normalized.name}.`,
+          date: currentDate,
+        },
+        ...prev,
+      ]);
       return;
     }
 
-    if (budget < cost) {
-      alert(`You don’t have enough budget to sign ${player.Player}.`);
-      return;
-    }
+    const updatedTeam = [...userTeam, normalized];
+    const updatedBudget = budget - cost;
 
-    setUserTeam((prev) => [...prev, player]);
-    setBudget((prev) => prev - cost);
+    setUserTeam(updatedTeam);
+    setBudget(updatedBudget);
+    localStorage.setItem('user_team', JSON.stringify(updatedTeam));
+    localStorage.setItem('user_budget', updatedBudget.toString());
 
-    const message = {
-      key: `signed_${player.Player}`,
-      title: `📝 Player Signed: ${player.Player}`,
-      body: `${player.Player} has joined your roster for $${cost.toLocaleString()}.`,
-      date: currentDate,
-    };
-    setInbox((prev) => [message, ...prev]);
+    setInbox((prev) => [
+      {
+        key: `signed_${normalized.name}`,
+        title: `📝 Player Signed: ${normalized.name}`,
+        body: `${normalized.name} has joined your roster for $${cost.toLocaleString()}.`,
+        date: currentDate,
+      },
+      ...prev,
+    ]);
   }
 
   return (
@@ -119,8 +166,8 @@ export const GameProvider = ({ children }) => {
         currentDate,
         setCurrentDate,
         advanceDay,
-        teamData,       // ✅ new: regional teams with stats
-        setTeamData,    // ✅ new: update for simulation
+        teamData,
+        setTeamData,
       }}
     >
       {children}
