@@ -1,7 +1,9 @@
+// src/Components/Tournaments/Stage1Major.jsx
+
 import React, { useEffect, useState } from 'react';
 import { useTournaments } from './TournamentContext';
 import teams from '../../../data/teams';
-import MatchCard from './MatchCard'; // Make sure MatchCard is implemented correctly
+import MatchCard from './MatchCard';
 
 const hostCities = ["Paris", "Boston", "Berlin", "Tokyo", "São Paulo", "Copenhagen", "Montréal"];
 
@@ -32,18 +34,19 @@ const Stage1Major = ({ goBack }) => {
   const [rounds, setRounds] = useState([]);
   const [currentRound, setCurrentRound] = useState(0);
   const [champion, setChampion] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const lcqTeams = Object.values(stage1QualifiedTeams).flat();
-    console.log("Qualified teams from LCQ:", lcqTeams);
+    const qualifiedTeams = Object.values(stage1QualifiedTeams).flat();
 
-    if (lcqTeams.length < 8) {
-      console.warn(" Not enough qualified teams from LCQ. Please complete LCQ first.");
+    // ✅ Validate structure & team data
+    if (!qualifiedTeams || qualifiedTeams.length < 8) {
+      setError("❌ Not enough qualified teams from LCQ. Please complete the LCQ stage.");
       return;
     }
 
     const invitedTeams = Object.entries(teams)
-      .filter(([name]) => !lcqTeams.find(t => t.name === name))
+      .filter(([name]) => !qualifiedTeams.find(q => q.name === name))
       .slice(0, 8)
       .map(([name, data]) => ({
         name,
@@ -52,8 +55,9 @@ const Stage1Major = ({ goBack }) => {
         logo: data.logo || 'default_logo.png'
       }));
 
-    const allTeams = shuffleArray([...lcqTeams.slice(0, 8), ...invitedTeams]);
+    const allTeams = shuffleArray([...qualifiedTeams.slice(0, 8), ...invitedTeams]);
 
+    // ✅ Generate first round
     const firstRound = [];
     for (let i = 0; i < 16; i += 2) {
       firstRound.push({
@@ -66,6 +70,7 @@ const Stage1Major = ({ goBack }) => {
     setRounds([firstRound]);
     setCurrentRound(0);
     setChampion(null);
+    setError(""); // Clear error
   }, [stage1QualifiedTeams]);
 
   const simulateMatchAt = (index) => {
@@ -85,13 +90,13 @@ const Stage1Major = ({ goBack }) => {
         if (winners.length === 1) {
           setChampion(winners[0]);
         } else {
-          const shuffledWinners = shuffleArray(winners);
+          const shuffled = shuffleArray(winners);
           const nextRound = [];
 
-          for (let i = 0; i < shuffledWinners.length; i += 2) {
+          for (let i = 0; i < shuffled.length; i += 2) {
             nextRound.push({
-              teamA: shuffledWinners[i],
-              teamB: shuffledWinners[i + 1],
+              teamA: shuffled[i],
+              teamB: shuffled[i + 1],
               result: null,
             });
           }
@@ -99,9 +104,8 @@ const Stage1Major = ({ goBack }) => {
           const updatedRounds = [...roundCopy, nextRound];
           setRounds(updatedRounds);
 
-          setTimeout(() => {
-            setCurrentRound(updatedRounds.length - 1);
-          }, 0);
+          // Slight delay to let state settle
+          setTimeout(() => setCurrentRound(updatedRounds.length - 1), 0);
         }
       }
 
@@ -113,13 +117,11 @@ const Stage1Major = ({ goBack }) => {
     rounds[currentRound]?.forEach((_, idx) => simulateMatchAt(idx));
   };
 
-  if (Object.values(stage1QualifiedTeams).flat().length < 8) {
+  if (error) {
     return (
       <div className="p-6 bg-[#111827] text-white min-h-screen text-center">
         <h2 className="text-2xl font-bold mb-4">Stage 1 Major</h2>
-        <p className="text-red-400 text-lg font-semibold">
-           Not enough qualified teams from LCQ. Please finish the LCQ first.
-        </p>
+        <p className="text-red-400 text-lg font-semibold">{error}</p>
         <button onClick={goBack} className="mt-6 px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded">
           Back to Menu
         </button>

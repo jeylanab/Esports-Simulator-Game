@@ -28,7 +28,7 @@ const simulateMatch = (teamA, teamB) => {
 };
 
 const LCQView = ({ goBack }) => {
-  const { updateStage1Qualifiers } = useTournaments();
+  const { updateStage1Qualifiers, resetStage1Qualifiers } = useTournaments();
   const [lcqFinished, setLCQFinished] = useState(false);
 
   const [regionData, setRegionData] = useState(() => {
@@ -75,13 +75,19 @@ const LCQView = ({ goBack }) => {
   };
 
   const confirmAllQualified = () => {
+    const allComplete = Object.values(regionData).every(region => region.qualifiers.length === 2);
+
+    if (!allComplete) {
+      alert("⚠️ Please simulate all matches and finals for all 4 regions.");
+      return;
+    }
+
     Object.entries(regionData).forEach(([region, data]) => {
-      if (data.qualifiers.length === 2) {
-        updateStage1Qualifiers(region, data.qualifiers);
-      }
+      updateStage1Qualifiers(region, data.qualifiers);
     });
+
+    alert("✅ LCQ completed and saved! You can now begin Stage 1 Major.");
     setLCQFinished(true);
-    alert("LCQ completed and saved! You can now start Stage 1 Major.");
   };
 
   const MatchCard = ({ match, region, idx }) => {
@@ -97,8 +103,8 @@ const LCQView = ({ goBack }) => {
         {result ? (
           <div className="text-sm text-gray-400 mt-3 space-y-1">
             <p>Winner: <span className="text-green-400 font-semibold">{result.winner.name}</span></p>
-            <p> MVP: {result.mvp.name}</p>
-            <p> Host: {result.hostCity}</p>
+            <p>MVP: {result.mvp.name}</p>
+            <p>Host: {result.hostCity}</p>
           </div>
         ) : (
           <button
@@ -158,13 +164,23 @@ const LCQView = ({ goBack }) => {
         );
       })}
 
-      <div className="text-center mt-10">
+      <div className="text-center mt-10 space-y-3">
         <button
           onClick={confirmAllQualified}
           className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-black rounded font-semibold"
         >
           ✅ Finish LCQ & Ready for Stage 1 Major
         </button>
+
+        {/* Optional: Developer reset button */}
+        <div>
+          <button
+            onClick={resetStage1Qualifiers}
+            className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded mt-4"
+          >
+            🔄 Reset LCQ Save (Dev Mode)
+          </button>
+        </div>
       </div>
     </div>
   );

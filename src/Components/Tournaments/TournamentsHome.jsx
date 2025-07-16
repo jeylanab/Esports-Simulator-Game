@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useCalendar } from '../Calendar/CalendarContext';
 import { seasonCalendar2026 } from '../Calendar/seasonCalendar2026';
-import { FaLock, FaPlay } from 'react-icons/fa';
+import { FaLock } from 'react-icons/fa';
 import dayjs from 'dayjs';
+
 import BracketView from './BracketView';
 import LCQView from './LCQView';
 import Stage1Major from './Stage1Major';
+import SiegeX from './SiegeX'; // ✅ Import the new component
 
 const tournamentPhases = [
   'si_2025',
@@ -37,7 +39,6 @@ const TournamentCard = ({ phase, currentPhase, onClick }) => {
           onClick={onClick}
           className="flex items-center gap-2 justify-center bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-4 py-2 rounded-full text-white text-xs font-semibold shadow-sm transition-all"
         >
-        
           Enter Tournament
         </button>
       ) : (
@@ -58,30 +59,37 @@ const TournamentsHome = () => {
     tournamentPhases.includes(phase.key)
   );
 
+  // ✅ Handle different brackets
   if (activeBracket) {
-    if (activeBracket.key === 'stage1_lcq') {
-      return (
-        <LCQView
-          title={activeBracket.phase}
-          phaseKey={activeBracket.key}
-          goBack={() => setActiveBracket(null)}
-        />
-      );
-    }
+    switch (activeBracket.key) {
+      case 'stage1_lcq':
+        return (
+          <LCQView
+            title={activeBracket.phase}
+            phaseKey={activeBracket.key}
+            goBack={() => setActiveBracket(null)}
+          />
+        );
 
-    if (activeBracket.key === 'stage1_major') {
-      return (
-        <Stage1Major goBack={() => setActiveBracket(null)} />
-      );
-    }
+      case 'stage1_major':
+        return (
+          <Stage1Major goBack={() => setActiveBracket(null)} />
+        );
 
-    return (
-      <BracketView
-        title={activeBracket.phase}
-        phaseKey={activeBracket.key}
-        goBack={() => setActiveBracket(null)}
-      />
-    );
+      case 'siege_x':
+        return (
+          <SiegeX goBack={() => setActiveBracket(null)} />
+        );
+
+      default:
+        return (
+          <BracketView
+            title={activeBracket.phase}
+            phaseKey={activeBracket.key}
+            goBack={() => setActiveBracket(null)}
+          />
+        );
+    }
   }
 
   return (
