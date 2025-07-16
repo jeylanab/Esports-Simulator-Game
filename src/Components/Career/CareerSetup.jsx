@@ -10,7 +10,7 @@ const CareerSetup = ({ teams, onPreview, onBack, teamPreview, savedData, onCaree
         teamPreview={teamPreview}
         onBack={onBack}
         savedData={savedData}
-        onCareerCreated={onCareerCreated} // 👈 Control stays in App.jsx
+        onCareerCreated={onCareerCreated} // 
       />
     </div>
   );

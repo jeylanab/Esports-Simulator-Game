@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import teams from '../../../data/teams';
 import MatchCard from './MatchCard';
+import { useGame } from '../Game/GameContext';
 
 const si2025TeamList = [
   "M80", "Spacestation Gaming", "G2 Esports", "FaZe Clan",
@@ -38,6 +39,8 @@ const BracketView = ({ title, phaseKey, goBack }) => {
   const [matchups, setMatchups] = useState([]);
   const [currentRound, setCurrentRound] = useState(0);
   const [winner, setWinner] = useState(null);
+
+  const { userTeamName, budget, setBudget, inbox, setInbox } = useGame();
 
   const siTeams = shuffleArray(si2025TeamList).map(name => ({
     name,
@@ -108,9 +111,54 @@ const BracketView = ({ title, phaseKey, goBack }) => {
     matchups[currentRound].forEach((_, index) => simulateSingleMatch(index));
   };
 
+  const prizeDistribution = {
+    1: 0.3333,
+    2: 0.15,
+    3: 0.08,
+    4: 0.0567,
+    5: 0.045,
+    6: 0.045,
+    7: 0.0342,
+    8: 0.0342,
+    9: 0.025,
+    10: 0.025,
+    11: 0.025,
+    12: 0.025,
+    13: 0.0183,
+    14: 0.0183,
+    15: 0.0183,
+    16: 0.0183,
+    17: 0.0116,
+    18: 0.0116,
+    19: 0.0116,
+    20: 0.0116
+  };
+
+  const prizePool = phaseKey === 'world_cup'
+    ? 2_000_000
+    : phaseKey === 'si'
+    ? 3_000_000
+    : 750_000;
+
   const generateNextRound = (winners) => {
     if (winners.length === 1) {
       setWinner(winners[0]);
+
+      const userWon = winners[0].name === userTeamName;
+      if (userWon) {
+        const payout = Math.round(prizeDistribution[1] * prizePool);
+        setBudget(prev => prev + payout);
+        setInbox(prev => [
+          {
+            key: `prize_${phaseKey}_${winners[0].name}`,
+            title: `🏆 You Won ${title}!`,
+            body: `Congrats! You earned $${payout.toLocaleString()} for finishing 1st.`,
+            date: new Date().toISOString().slice(0, 10),
+          },
+          ...prev,
+        ]);
+      }
+
       return;
     }
 
@@ -129,7 +177,7 @@ const BracketView = ({ title, phaseKey, goBack }) => {
   };
 
   return (
-    <div className="p-4 md:p-8 text-white min-h-screen bg-[#111827]">
+    <div className="p-4 md:p-8 text-white min-h-screen">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl md:text-2xl font-bold">{title}</h2>
         <div>

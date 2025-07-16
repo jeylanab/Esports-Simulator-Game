@@ -1,4 +1,3 @@
-// src/Components/Game/GameContext.jsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getNextDate } from '../../Utils/dateUtils';
 import allTeams from '../../../data/teams';
@@ -9,10 +8,10 @@ export const useGame = () => useContext(GameContext);
 export const GameProvider = ({ children }) => {
   const [inbox, setInbox] = useState([]);
   const [userTeam, setUserTeam] = useState([]);
+  const [userTeamName, setUserTeamName] = useState(null);
   const [budget, setBudget] = useState(1_000_000);
   const [currentDate, setCurrentDate] = useState("2026-01-01");
 
-  // ✅ Normalize any player object to a unified structure
   const normalizePlayer = (player) => ({
     name: player.name || player.Player || 'Unknown',
     rating: player.rating ?? player.Overall ?? 70,
@@ -25,21 +24,27 @@ export const GameProvider = ({ children }) => {
     Age: player.Age || '',
   });
 
-  // ✅ Load base players and store them if not yet saved
   useEffect(() => {
     const savedTeam = localStorage.getItem('user_team');
     const savedBudget = localStorage.getItem('user_budget');
+    const savedTeamName = localStorage.getItem('user_team_name');
     const savedSlot = localStorage.getItem('career_slot_1');
 
     if (savedTeam) {
-      const parsed = JSON.parse(savedTeam);
-      setUserTeam(parsed.map(normalizePlayer));
+      const parsedTeam = JSON.parse(savedTeam).map(normalizePlayer);
+      setUserTeam(parsedTeam);
     } else if (savedSlot) {
       const slot = JSON.parse(savedSlot);
       const basePlayers = allTeams[slot.team]?.players || [];
-      const normalizedBase = basePlayers.map(normalizePlayer);
-      setUserTeam(normalizedBase);
-      localStorage.setItem('user_team', JSON.stringify(normalizedBase));
+      const normalized = basePlayers.map(normalizePlayer);
+      setUserTeam(normalized);
+      setUserTeamName(slot.team); // 🔥 Save team name to context
+      localStorage.setItem('user_team', JSON.stringify(normalized));
+      localStorage.setItem('user_team_name', slot.team); // 🔐 persist
+    }
+
+    if (savedTeamName) {
+      setUserTeamName(savedTeamName); // ✅ Restore if saved
     }
 
     if (savedBudget) {
@@ -48,9 +53,18 @@ export const GameProvider = ({ children }) => {
       setBudget(1_000_000);
       localStorage.setItem('user_budget', '1000000');
     }
+
+    setInbox(prev => ([
+      {
+        key: 'intro_welcome',
+        title: "👋 Welcome to Siege Manager",
+        body: "Your journey as a coach begins now. Watch for transfer news and event updates.",
+        date: "2026-01-01",
+      },
+      ...prev,
+    ]));
   }, []);
 
-  // ✅ Group teams by region and initialize league data
   const [teamData, setTeamData] = useState(() => {
     const regions = {};
     for (const teamName in allTeams) {
@@ -59,7 +73,7 @@ export const GameProvider = ({ children }) => {
         name: teamName,
         region: team.region,
         logo: team.logo,
-        players: team.players,
+        players: team.players.map(normalizePlayer),
         wins: 0,
         losses: 0,
         points: 0,
@@ -91,7 +105,7 @@ export const GameProvider = ({ children }) => {
       },
       "2026-08-05": {
         title: "🏆 Siege X Starts!",
-        body: "The Esports World Cup is here with $2M prize pool!",
+        body: "The Esports World Cup begins. $2M is on the line.",
       },
       "2026-09-29": {
         title: "📦 Season Ending Soon",
@@ -99,9 +113,9 @@ export const GameProvider = ({ children }) => {
       },
     };
 
-    if (eventTriggers[currentDate]) {
-      const event = eventTriggers[currentDate];
-      setInbox((prev) => [
+    const event = eventTriggers[currentDate];
+    if (event) {
+      setInbox(prev => [
         {
           key: `event_${currentDate}`,
           title: event.title,
@@ -113,14 +127,13 @@ export const GameProvider = ({ children }) => {
     }
   }, [currentDate]);
 
-  // ✅ Sign player logic
   function signPlayer(player) {
     const normalized = normalizePlayer(player);
     const alreadySigned = userTeam.some(p => p.name === normalized.name);
     const cost = 250_000;
 
     if (alreadySigned || budget < cost) {
-      setInbox((prev) => [
+      setInbox(prev => [
         {
           key: `fail_${normalized.name}`,
           title: alreadySigned ? "⚠️ Already Signed" : "💸 Not Enough Budget",
@@ -142,7 +155,7 @@ export const GameProvider = ({ children }) => {
     localStorage.setItem('user_team', JSON.stringify(updatedTeam));
     localStorage.setItem('user_budget', updatedBudget.toString());
 
-    setInbox((prev) => [
+    setInbox(prev => [
       {
         key: `signed_${normalized.name}`,
         title: `📝 Player Signed: ${normalized.name}`,
@@ -168,6 +181,7 @@ export const GameProvider = ({ children }) => {
         advanceDay,
         teamData,
         setTeamData,
+        userTeamName, // ✅ expose to consumers
       }}
     >
       {children}

@@ -11,7 +11,7 @@ import MatchSimulator from './Components/Simulation/MatchSimulator';
 import LeagueMenu from './Components/League/LeagueMenu';
 import LeagueView from './Components/League/LeagueView';
 import TournamentsHome from './Components/Tournaments/TournamentsHome';
-
+import EconomyView from './Components/Economy/EconomyView';
 import { CalendarProvider } from './Components/Calendar/CalendarContext';
 import { GameProvider, useGame } from './Components/Game/GameContext';
 import { TournamentProvider } from './Components/Tournaments/TournamentContext';
@@ -115,6 +115,7 @@ const AppContent = () => {
                 <LeagueView leaguePhaseKey={currentLeaguePhase} />
               )}
               {activeView === 'tournaments' && <TournamentsHome />}
+              {activeView === 'economy' && <EconomyView />}
             </>
           )}
         </>
