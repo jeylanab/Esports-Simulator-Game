@@ -1,10 +1,12 @@
+// src/Components/Tournaments/MatchCard.jsx
 import React from 'react';
 
 const MatchCard = ({ match, index, simulate, isActiveRound, highlightTeam }) => {
-  const isUserTeam =
-    match.teamA?.name === highlightTeam || match.teamB?.name === highlightTeam;
-
-  const winnerName = match.result?.winner?.name;
+  const teamA = match?.teamA;
+  const teamB = match?.teamB;
+  const result = match?.result;
+  const isUserTeam = teamA?.name === highlightTeam || teamB?.name === highlightTeam;
+  const winnerName = result?.winner?.name;
 
   return (
     <div
@@ -17,39 +19,39 @@ const MatchCard = ({ match, index, simulate, isActiveRound, highlightTeam }) => 
         {/* Team A */}
         <div className="flex items-center space-x-1 w-[100px] overflow-hidden">
           <img
-            src={`/assets/logos/${match.teamA.logo}`}
-            alt={match.teamA.name}
+            src={`/assets/logos/${teamA?.logo || 'default.png'}`}
+            alt={teamA?.name || 'Team A'}
             className="w-5 h-5 rounded bg-white shrink-0"
           />
           <span
-            title={match.teamA.name}
+            title={teamA?.name}
             className={`truncate ${
-              winnerName === match.teamA.name ? 'text-green-400 font-semibold' : ''
+              winnerName === teamA?.name ? 'text-green-400 font-semibold' : ''
             }`}
           >
-            {match.teamA.name}
+            {teamA?.name || 'TBD'}
           </span>
         </div>
 
         {/* Match Score */}
         <span className="text-yellow-400 font-bold text-sm whitespace-nowrap">
-          {match.result?.score || 'vs'}
+          {result?.score || 'vs'}
         </span>
 
         {/* Team B or Bye */}
-        {match.teamB ? (
+        {teamB ? (
           <div className="flex items-center space-x-1 w-[100px] overflow-hidden justify-end">
             <span
-              title={match.teamB.name}
+              title={teamB?.name}
               className={`truncate text-right ${
-                winnerName === match.teamB.name ? 'text-green-400 font-semibold' : ''
+                winnerName === teamB?.name ? 'text-green-400 font-semibold' : ''
               }`}
             >
-              {match.teamB.name}
+              {teamB?.name || 'TBD'}
             </span>
             <img
-              src={`/assets/logos/${match.teamB.logo}`}
-              alt={match.teamB.name}
+              src={`/assets/logos/${teamB?.logo || 'default.png'}`}
+              alt={teamB?.name || 'Team B'}
               className="w-5 h-5 rounded bg-white shrink-0"
             />
           </div>
@@ -59,15 +61,15 @@ const MatchCard = ({ match, index, simulate, isActiveRound, highlightTeam }) => 
       </div>
 
       {/* Match Result Details */}
-      {match.result && (
+      {result && (
         <div className="text-xs text-center text-gray-300 pt-1">
-          <span className="text-cyan-400 font-medium">{match.result.mvp?.name}</span>
-          {` • ${match.result.hostCity} • ${match.result.date}`}
+          <span className="text-cyan-400 font-medium">{result.mvp?.name || 'MVP'}</span>
+          {` • ${result.hostCity || 'City'} • ${result.date || 'Date'}`}
         </div>
       )}
 
       {/* Simulate Button */}
-      {!match.result && match.teamB && isActiveRound && (
+      {!result && teamB && isActiveRound && (
         <div className="flex justify-center mt-2">
           <button
             onClick={() => simulate(index)}

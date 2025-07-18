@@ -1,7 +1,7 @@
 // src/Utils/matchLogic.js
 
 // ✅ Main simulation function
-export function simulateMatch(teamA, teamB) {
+export function simulateMatch(teamA, teamB, teamAName = "Team A", teamBName = "Team B") {
   if (!Array.isArray(teamA) || teamA.length === 0 || !Array.isArray(teamB) || teamB.length === 0) {
     return {
       winnerName: "Unknown",
@@ -27,15 +27,15 @@ export function simulateMatch(teamA, teamB) {
   const isDraw = Math.abs(scoreA - scoreB) < 1.5;
   const userWins = scoreA >= scoreB;
 
-  const winner = userWins ? teamA : teamB;
-  const loser = userWins ? teamB : teamA;
+  const winnerName = userWins ? teamAName : teamBName;
+  const loserName = userWins ? teamBName : teamAName;
 
   const finalScore = `${7}-${isDraw ? 6 : Math.floor(Math.random() * 5 + 1)}`;
-  const mvp = calculateMVP(winner);
+  const mvp = calculateMVP(userWins ? teamA : teamB);
 
   return {
-    winnerName: getTeamName(winner, "Team A"),
-    loserName: getTeamName(loser, "Team B"),
+    winnerName,
+    loserName,
     score: finalScore,
     mvp,
     playersA: teamA.map(p => p.Player || p.name || "Unknown"),
@@ -82,10 +82,4 @@ export function calculateMVP(team) {
     D: Math.floor(Math.random() * 10) + 5,
     A: Math.floor(Math.random() * 8) + 3,
   };
-}
-
-// ✅ Safely extract a team name
-function getTeamName(team, fallback = "Team") {
-  const name = team?.[0]?.Team || team?.[0]?.team || fallback;
-  return name;
 }

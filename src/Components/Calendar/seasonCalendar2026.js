@@ -81,7 +81,7 @@ export const seasonCalendar2026 = [
     key: "media_travel",
     start: "2026-08-10",
     end: "2026-08-24",
-    description: "Build-up to Stage 2 Major."
+    description: "Rest and Build-up to Stage 2 Major."
   },
   {
     phase: "Stage 2 Major",

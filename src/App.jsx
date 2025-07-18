@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+
+// Screens & Views
 import HomeScreen from './Components/HomeScreen';
 import CareerSetup from './Components/Career/CareerSetup';
 import TeamPreview from './Components/TeamPreview';
@@ -12,11 +14,16 @@ import LeagueMenu from './Components/League/LeagueMenu';
 import LeagueView from './Components/League/LeagueView';
 import TournamentsHome from './Components/Tournaments/TournamentsHome';
 import EconomyView from './Components/Economy/EconomyView';
+import StatView from './Components/Stats/StatView'; // ✅ NEW: Full stat dashboard view
+
+// Providers & Hooks
 import { CalendarProvider } from './Components/Calendar/CalendarContext';
 import { GameProvider, useGame } from './Components/Game/GameContext';
 import { TournamentProvider } from './Components/Tournaments/TournamentContext';
 import { useCalendarEffects } from './Components/Calendar/useCalendarEffects';
+import { StatProvider, useStats } from './Components/Game/StatContext';
 
+// Data
 import teams from '../data/teams';
 
 const AppContent = () => {
@@ -28,8 +35,11 @@ const AppContent = () => {
   const [currentLeaguePhase, setCurrentLeaguePhase] = useState(null);
 
   const { setUserTeam } = useGame();
+  const { initializePlayers } = useStats();
+
   useCalendarEffects();
 
+  // Load saved game
   const loadCareer = (slot) => {
     const saved = localStorage.getItem(`career_slot_${slot}`);
     if (!saved) {
@@ -38,44 +48,49 @@ const AppContent = () => {
     }
 
     const data = JSON.parse(saved);
+    const teamName = data.team;
+    const loadedPlayers = teams[teamName]?.players || [];
+
     setSavedData(data);
-    setSelectedTeam(data.team);
-    setScreen('career');
+    setSelectedTeam(teamName);
+    setUserTeam(loadedPlayers);
+    initializePlayers(loadedPlayers);
+
     setCareerStarted(true);
     setActiveView('calendar');
-
-    const loadedPlayers = Array.isArray(teams[data.team]) ? teams[data.team] : [];
-    setUserTeam(loadedPlayers);
+    setScreen('career');
 
     return data;
   };
 
-  const handleLoadSlot = (slot) => {
-    const data = loadCareer(slot);
-    if (!data) alert("No data in that slot.");
+  // Handle new career creation
+  const handleCareerCreated = (teamName) => {
+    const initialPlayers = teams[teamName]?.players || [];
+    setUserTeam(initialPlayers);
+    initializePlayers(initialPlayers);
+
+    setCareerStarted(true);
+    setSelectedTeam(teamName);
+    setActiveView('calendar');
   };
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {screen === 'home' && (
+      {screen === 'home' ? (
         <HomeScreen
           onStart={() => {
             setScreen('career');
-            setCareerStarted(false); // ⛳ reset for new creation
+            setCareerStarted(false);
           }}
-          onLoadSlot1={() => handleLoadSlot(1)}
-          onLoadSlot2={() => handleLoadSlot(2)}
+          onLoadSlot1={() => loadCareer(1)}
+          onLoadSlot2={() => loadCareer(2)}
         />
-      )}
-
-      {screen === 'career' && (
+      ) : (
         <>
-          {/* NavBar only shown if a career has started */}
           {careerStarted && (
             <NavBar setScreen={setScreen} setActiveView={setActiveView} />
           )}
 
-          {/* Career not started = show creation form */}
           {!careerStarted ? (
             <CareerSetup
               teams={teams}
@@ -90,13 +105,7 @@ const AppContent = () => {
                 )
               }
               savedData={savedData}
-              onCareerCreated={(teamName) => {
-                setCareerStarted(true);
-                setActiveView('calendar');
-                setSelectedTeam(teamName);
-                const initialPlayers = Array.isArray(teams[teamName]) ? teams[teamName] : [];
-                setUserTeam(initialPlayers);
-              }}
+              onCareerCreated={handleCareerCreated}
             />
           ) : (
             <>
@@ -104,7 +113,9 @@ const AppContent = () => {
               {activeView === 'inbox' && <InboxView />}
               {activeView === 'transfers' && <TransferWindow />}
               {activeView === 'team' && <MyTeam teamName={selectedTeam} />}
-              {activeView === 'simulator' && <MatchSimulator opponentTeam={selectedTeam} />}
+              {activeView === 'simulator' && (
+                <MatchSimulator opponentTeam={selectedTeam} />
+              )}
               {activeView === 'league' && (
                 <LeagueMenu
                   setActiveView={setActiveView}
@@ -116,6 +127,7 @@ const AppContent = () => {
               )}
               {activeView === 'tournaments' && <TournamentsHome />}
               {activeView === 'economy' && <EconomyView />}
+              {activeView === 'stats' && <StatView />} {/* ✅ NEW: StatView */}
             </>
           )}
         </>
@@ -125,13 +137,15 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <CalendarProvider>
-    <GameProvider>
-      <TournamentProvider>
-        <AppContent />
-      </TournamentProvider>
-    </GameProvider>
-  </CalendarProvider>
+  <StatProvider>
+    <CalendarProvider>
+      <GameProvider>
+        <TournamentProvider>
+          <AppContent />
+        </TournamentProvider>
+      </GameProvider>
+    </CalendarProvider>
+  </StatProvider>
 );
 
 export default App;
