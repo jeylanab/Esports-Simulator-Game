@@ -1,18 +1,25 @@
 import { simulateMatch } from './matchLogic';
 import teams from '../../data/teams';
 
+// 🔌 External context setter for player stat updates
+let statContext = null;
+export function setStatContext(context) {
+  statContext = context;
+}
+
+// 🏙️ Predefined host cities
 const hostCities = [
   'Paris', 'Boston', 'Berlin', 'Tokyo', 'São Paulo',
   'Copenhagen', 'Montréal', 'Los Angeles', 'Seoul',
   'Barcelona', 'London', 'Stockholm'
 ];
 
-// ✅ Generate round-robin schedule
+// 📅 Generate a round-robin schedule for teams
 export function generateSchedule(regionTeams) {
   const teamsList = [...regionTeams];
 
   if (teamsList.length % 2 !== 0) {
-    teamsList.push(null); // Add dummy team
+    teamsList.push(null); // Add a dummy team for bye weeks
   }
 
   const schedule = [];
@@ -40,7 +47,7 @@ export function generateSchedule(regionTeams) {
   return schedule;
 }
 
-// ✅ Simulate entire matchday
+// 🧠 Simulate a full matchday, update results, standings, player stats
 export function simulateMatchday(region, matchdayIndex, currentResults = {}, currentStandings = {}) {
   const regionTeams = Object.keys(teams).filter(t => teams[t].region === region);
   const schedule = generateSchedule(regionTeams);
@@ -60,9 +67,32 @@ export function simulateMatchday(region, matchdayIndex, currentResults = {}, cur
       teamB
     );
 
-    const { winnerName, score, mvp } = result;
+    const { winnerName, score, mvp, playerStats } = result;
 
-    // Initialize standings
+    // 🧩 Update player stats via StatContext
+    if (statContext && statContext.updatePlayerMatchStats) {
+      const allPlayers = [...teams[teamA].players, ...teams[teamB].players];
+
+      allPlayers.forEach((player) => {
+        const pStats = playerStats[player.name];
+        if (pStats) {
+          statContext.updatePlayerMatchStats(player.name, {
+            kills: pStats.kills,
+            assists: pStats.assists,
+            deaths: pStats.deaths,
+            rating: pStats.rating,
+            team: winnerName,
+            region: teams[teamA].region,
+            mvp: mvp === player.name,
+            eventName: `Matchday ${matchdayIndex + 1}`,
+          });
+        }
+      });
+
+      statContext.increaseChemistry(allPlayers.map(p => p.name));
+    }
+
+    // 🏆 Update standings
     [teamA, teamB].forEach(team => {
       if (!currentStandings[team]) {
         currentStandings[team] = { W: 0, L: 0, MP: 0, Points: 0 };
@@ -107,9 +137,10 @@ export function simulateMatchday(region, matchdayIndex, currentResults = {}, cur
   };
 }
 
-// ✅ Simulate a single match (used for single-match simulation)
+// 🕹️ Simulate a single exhibition match
 export function simulateSingleMatch(region, matchdayIndex, teamA, teamB, currentResults = [], currentStandings = {}) {
   const hostCity = hostCities[Math.floor(Math.random() * hostCities.length)];
+
   const result = simulateMatch(
     teams[teamA].players,
     teams[teamB].players,
@@ -117,9 +148,32 @@ export function simulateSingleMatch(region, matchdayIndex, teamA, teamB, current
     teamB
   );
 
-  const { winnerName, score, mvp } = result;
+  const { winnerName, score, mvp, playerStats } = result;
 
-  // Initialize standings
+  // 🧩 Update player stats
+  if (statContext && statContext.updatePlayerMatchStats) {
+    const allPlayers = [...teams[teamA].players, ...teams[teamB].players];
+
+    allPlayers.forEach((player) => {
+      const pStats = playerStats[player.name];
+      if (pStats) {
+        statContext.updatePlayerMatchStats(player.name, {
+          kills: pStats.kills,
+          assists: pStats.assists,
+          deaths: pStats.deaths,
+          rating: pStats.rating,
+          team: winnerName,
+          region: teams[teamA].region,
+          mvp: mvp === player.name,
+          eventName: `Friendly Matchday ${matchdayIndex + 1}`,
+        });
+      }
+    });
+
+    statContext.increaseChemistry(allPlayers.map(p => p.name));
+  }
+
+  // 🏆 Standings update
   [teamA, teamB].forEach(team => {
     if (!currentStandings[team]) {
       currentStandings[team] = { W: 0, L: 0, MP: 0, Points: 0 };

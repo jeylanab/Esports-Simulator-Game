@@ -22,17 +22,29 @@ export const GameProvider = ({ children }) => {
     }
   };
 
-  const normalizePlayer = (player) => ({
-    name: player.name || player.Player || 'Unknown',
-    rating: player.rating ?? player.Overall ?? 70,
-    iq: player.iq ?? player.GameSense ?? 70,
-    aim: player.aim ?? player.Aim ?? 70,
-    mechanics: player.mechanics ?? player.Mechanics ?? 70,
-    clutch: player.clutch ?? player.Clutch ?? 70,
-    Role: player.Role || '',
-    Country: player.Country || '',
-    Age: player.Age || '',
-  });
+const normalizePlayer = (player) => ({
+  name: player.name || player.Player || 'Unknown',
+  rating: player.rating ?? player.Overall ?? 70,
+  iq: player.iq ?? player.GameSense ?? 70,
+  aim: player.aim ?? player.Aim ?? 70,
+  mechanics: player.mechanics ?? player.Mechanics ?? 70,
+  clutch: player.clutch ?? player.Clutch ?? 70,
+  Role: player.Role || '',
+  Country: player.Country || '',
+  Age: player.Age || '',
+  chemistry: player.chemistry ?? 50, // if you track this
+  contract: player.contract || { years: 1, wage: 250_000 },
+
+  seasonStats: {
+    kills: 0,
+    deaths: 0,
+    assists: 0,
+    mvps: 0,
+    matchRating: [], 
+    tournamentsPlayed: 0
+  }
+});
+
 
   useEffect(() => {
     const savedTeam = localStorage.getItem('user_team');
