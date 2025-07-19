@@ -1,9 +1,38 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useStats } from '../Game/StatContext';
+import teams from '../../../data/teams';
 
-export default function SeasonStatsTable({ players }) {
-  if (!Array.isArray(players)) return null;
+export default function SeasonStatsTable() {
+  const { playerStats } = useStats();
 
-  const sorted = [...players].sort((a, b) => (b.mvps || 0) - (a.mvps || 0)); // MVP sort
+  // 🧠 Combine stat data with team/region and K/D calculations
+  const enrichedPlayers = useMemo(() => {
+    return Object.entries(playerStats).map(([name, stats]) => {
+      const teamEntry = Object.entries(teams).find(([_, team]) =>
+        team.players.some((p) => p.name === name)
+      );
+
+      const teamName = teamEntry?.[0] || '—';
+      const region = teamEntry?.[1]?.region || '—';
+      const deaths = stats.deaths || 1; // avoid div-by-zero
+      const kdRatio = ((stats.kills + stats.assists) / deaths).toFixed(2);
+      const matchRating = Array.isArray(stats.matchRating)
+        ? stats.matchRating
+        : [stats.rating || 0];
+
+      return {
+        name,
+        team: teamName,
+        region,
+        kdRatio,
+        mvps: stats.mvp || 0,
+        matchRating,
+      };
+    });
+  }, [playerStats]);
+
+  // MVP sort descending
+  const sorted = [...enrichedPlayers].sort((a, b) => b.mvps - a.mvps);
 
   return (
     <div className="overflow-x-auto rounded-lg border border-cyan-700">
@@ -25,12 +54,12 @@ export default function SeasonStatsTable({ players }) {
               className={idx % 2 === 0 ? 'bg-[#1b1b1b]' : 'bg-[#111]'}
             >
               <td className="px-4 py-2 font-medium">{p.name}</td>
-              <td className="px-3 py-2 text-center">{p.team || '—'}</td>
-              <td className="px-3 py-2 text-center">{p.region || '—'}</td>
-              <td className="px-3 py-2 text-center">{p.kdRatio || '—'}</td>
-              <td className="px-3 py-2 text-center">{p.mvps ?? 0}</td>
+              <td className="px-3 py-2 text-center">{p.team}</td>
+              <td className="px-3 py-2 text-center">{p.region}</td>
+              <td className="px-3 py-2 text-center">{p.kdRatio}</td>
+              <td className="px-3 py-2 text-center">{p.mvps}</td>
               <td className="px-3 py-2 text-center">
-                {Array.isArray(p.matchRating) && p.matchRating.length > 0
+                {p.matchRating && p.matchRating.length > 0
                   ? (
                       p.matchRating.reduce((a, b) => a + b, 0) /
                       p.matchRating.length

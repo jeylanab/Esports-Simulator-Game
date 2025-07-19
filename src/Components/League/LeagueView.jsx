@@ -1,30 +1,31 @@
-// src/Components/League/LeagueView.jsx
-
 import React, { useState } from 'react';
 import { useCalendar } from '../Calendar/CalendarContext';
+import { useStats } from '../Game/StatContext';
+import { generateSchedule, simulateSingleMatch } from '../../Utils/leagueLogic';
+import LeagueStatsPanel from './LeagueStatsPanel';
 import teams from '../../../data/teams';
-import {
-  generateSchedule,
-  simulateMatchday,
-  simulateSingleMatch,
-} from '../../Utils/leagueLogic';
+
 import {
   FaCalendarDay,
   FaMedal,
   FaPlayCircle,
   FaTimes,
 } from 'react-icons/fa';
-import LeagueStatsPanel from './LeagueStatsPanel';
 
 const regions = ['NA', 'MENA', 'APAC', 'SA'];
 
 const LeagueView = () => {
   const { currentPhase } = useCalendar();
+  const {
+    getTeamChemistry,
+    increaseTeamChemistry,
+    updatePlayerMatchStats,
+    determineMVP,
+  } = useStats();
 
   const [results, setResults] = useState({});
   const [standings, setStandings] = useState({});
   const [matchdayIndices, setMatchdayIndices] = useState({});
-  const [hostCitiesMap, setHostCitiesMap] = useState({});
   const [visibleStandingRegion, setVisibleStandingRegion] = useState(null);
   const [showStatsPanel, setShowStatsPanel] = useState(false);
 
@@ -43,41 +44,16 @@ const LeagueView = () => {
 
   const stageLabel = isStage1 ? 'stage1' : 'stage2';
 
-  const handleSim = (region, key, schedule, currentMatchday) => {
-    if (currentMatchday >= schedule.length) return;
-
-    const { updatedResults, updatedStandings, hostCity } = simulateMatchday(
-      region,
-      currentMatchday,
-      { [region]: results[key] || [] },
-      standings[key] || {}
-    );
-
-    setResults((prev) => ({
-      ...prev,
-      [key]: [...(prev[key] || []), ...updatedResults[region]],
-    }));
-    setStandings((prev) => ({ ...prev, [key]: updatedStandings[region] }));
-    setHostCitiesMap((prev) => ({
-      ...prev,
-      [`${key}_matchday${currentMatchday + 1}`]: hostCity,
-    }));
-    setMatchdayIndices((prev) => ({
-      ...prev,
-      [key]: currentMatchday + 1,
-    }));
-  };
-
   const handleSingleMatch = (region, key, teamA, teamB, currentMatchday) => {
     const schedule = generateSchedule(
       Object.keys(teams).filter((t) => teams[t].region === region)
     );
     if (currentMatchday >= schedule.length) return;
 
-    const existing = results[key]?.find(
+    const alreadySimmed = results[key]?.find(
       (r) => r.teamA === teamA && r.teamB === teamB && r.matchday === currentMatchday + 1
     );
-    if (existing) return;
+    if (alreadySimmed) return;
 
     const { newMatchResult, updatedStandings } = simulateSingleMatch(
       region,
@@ -85,60 +61,97 @@ const LeagueView = () => {
       teamA,
       teamB,
       results[key] || [],
-      standings[key] || {}
+      standings[key] || {},
+      {
+        getTeamChemistry,
+        increaseTeamChemistry,
+        updatePlayerMatchStats,
+        determineMVP,
+      }
     );
 
     const updatedResults = [...(results[key] || []), newMatchResult];
+
     setResults((prev) => ({ ...prev, [key]: updatedResults }));
     setStandings((prev) => ({ ...prev, [key]: updatedStandings }));
-    setHostCitiesMap((prev) => ({
-      ...prev,
-      [`${key}_matchday${currentMatchday + 1}`]: newMatchResult.hostCity,
-    }));
 
-    const matchCount = schedule[currentMatchday]?.length || 0;
     const totalSimulated = updatedResults.filter(
       (r) => r.matchday === currentMatchday + 1
     ).length;
+    const totalMatches = schedule[currentMatchday]?.length || 0;
 
-    if (totalSimulated === matchCount) {
-      setMatchdayIndices((prev) => ({
-        ...prev,
-        [key]: currentMatchday + 1,
-      }));
+    if (totalSimulated === totalMatches) {
+      setMatchdayIndices((prev) => ({ ...prev, [key]: currentMatchday + 1 }));
     }
   };
 
+  const handleSimAllMatches = (region, key) => {
+    const regionTeams = Object.keys(teams).filter((t) => teams[t].region === region);
+    const schedule = generateSchedule(regionTeams);
+    const currentMatchday = matchdayIndices[key] || 0;
+
+    if (currentMatchday >= schedule.length) return;
+
+    let updatedResults = results[key] || [];
+    let updatedStanding = standings[key] || {};
+
+    for (const [teamA, teamB] of schedule[currentMatchday]) {
+      const alreadySimmed = updatedResults.find(
+        (r) => r.teamA === teamA && r.teamB === teamB && r.matchday === currentMatchday + 1
+      );
+      if (alreadySimmed) continue;
+
+      const { newMatchResult, updatedStandings } = simulateSingleMatch(
+        region,
+        currentMatchday,
+        teamA,
+        teamB,
+        updatedResults,
+        updatedStanding,
+        {
+          getTeamChemistry,
+          increaseTeamChemistry,
+          updatePlayerMatchStats,
+          determineMVP,
+        }
+      );
+
+      updatedResults = [...updatedResults, newMatchResult];
+      updatedStanding = updatedStandings;
+    }
+
+    setResults((prev) => ({ ...prev, [key]: updatedResults }));
+    setStandings((prev) => ({ ...prev, [key]: updatedStanding }));
+    setMatchdayIndices((prev) => ({ ...prev, [key]: currentMatchday + 1 }));
+  };
+
   const renderRegion = (region) => {
-    const regionTeamNames = Object.keys(teams).filter((t) => teams[t].region === region);
-    const schedule = generateSchedule(regionTeamNames);
+    const teamNames = Object.keys(teams).filter((t) => teams[t].region === region);
+    const schedule = generateSchedule(teamNames);
     const key = `${stageLabel}_${region}`;
     const currentMatchday = matchdayIndices[key] || 0;
 
     return (
-      <div
-        key={region}
-        className="bg-[#1c1c1c] p-4 rounded-2xl text-white mb-10 shadow-lg border border-[#2c2c2c]"
-      >
+      <div key={region} className="bg-[#1c1c1c] p-4 rounded-2xl text-white mb-10 shadow-lg border border-[#2c2c2c]">
         <div className="flex justify-between items-center mb-4">
           <div>
             <h3 className="text-xl font-bold uppercase text-yellow-400">
               {region} League — {isStage1 ? 'Stage 1' : 'Stage 2'}
             </h3>
             <p className="text-sm text-gray-400 flex items-center gap-2">
-              <FaCalendarDay className="text-cyan-400" /> Matchday{' '}
-              {Math.min(currentMatchday + 1, schedule.length)} of {schedule.length}
+              <FaCalendarDay className="text-cyan-400" /> Matchday {Math.min(currentMatchday + 1, schedule.length)} of {schedule.length}
             </p>
           </div>
+
           <div className="flex gap-2">
             <button
-              className="flex items-center gap-1 bg-cyan-500 hover:bg-cyan-400 text-black px-3 py-1.5 rounded-md text-xs font-semibold transition uppercase"
-              onClick={() => handleSim(region, key, schedule, currentMatchday)}
+              className="flex items-center gap-1 bg-cyan-500 hover:bg-cyan-400 text-black px-3 py-1.5 rounded-md text-xs font-semibold uppercase transition"
+              onClick={() => handleSimAllMatches(region, key)}
             >
-              <FaPlayCircle /> Sim Day
+              <FaPlayCircle /> Sim All
             </button>
             <button
-              className="flex items-center gap-1 bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1.5 rounded-md text-xs font-semibold transition uppercase"
+              className="flex items-center gap-1 bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1.5 rounded-md text-xs font-semibold uppercase transition"
               onClick={() => setVisibleStandingRegion(region)}
             >
               <FaMedal /> Standings
@@ -147,7 +160,7 @@ const LeagueView = () => {
         </div>
 
         {currentMatchday < schedule.length ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {schedule[currentMatchday]?.map(([teamA, teamB], idx) => {
               const match = results[key]?.find(
                 (r) => r.teamA === teamA && r.teamB === teamB && r.matchday === currentMatchday + 1
@@ -155,31 +168,38 @@ const LeagueView = () => {
               const sim = !!match;
 
               return (
-                <div
-                  key={`${teamA}-${teamB}-${idx}`}
-                  className="bg-[#1c1c1c] rounded-lg p-3 border border-[#333] shadow-sm hover:shadow-cyan-500/10 transition duration-200"
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2 max-w-[45%] truncate">
+                <div key={`${teamA}-${teamB}-${idx}`} className="bg-[#121212] rounded-lg p-2 border border-[#2a2a2a] text-white text-sm flex flex-col items-center justify-between gap-2 shadow-md">
+                  <h4 className="font-bold text-gray-300">Round #{currentMatchday + 1}</h4>
+
+                  <div className="flex items-center justify-between w-full gap-3">
+                    <div className="flex items-center gap-2">
                       <img src={`/logos/${teams[teamA]?.logo || 'default.png'}`} className="w-6 h-6 object-contain" alt={teamA} />
-                      <span className="text-sm text-white font-semibold">{teamA}</span>
+                      <span className="font-semibold">{teamA}</span>
                     </div>
+
                     <span className="text-cyan-400 font-bold text-md">
-                      {sim ? match.score : 'VS'}
+                      {sim ? match.score : '0 - 0'}
                     </span>
-                    <div className="flex items-center gap-2 max-w-[45%] truncate justify-end">
-                      <span className="text-sm text-white font-semibold text-right">{teamB}</span>
+
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">{teamB}</span>
                       <img src={`/logos/${teams[teamB]?.logo || 'default.png'}`} className="w-6 h-6 object-contain" alt={teamB} />
                     </div>
                   </div>
 
-                  {!sim && (
+                  {!sim ? (
                     <button
-                      className="mt-2 w-full py-1 text-xs font-bold uppercase text-black bg-cyan-400 hover:bg-cyan-300 rounded-md flex items-center justify-center gap-2 transition"
-                      onClick={() => handleSingleMatch(region, key, teamA, teamB, currentMatchday)}
+                      className="bg-yellow-300 text-black text-xs px-3 py-1 rounded-md font-semibold hover:bg-yellow-200 transition"
+                      onClick={() =>
+                        handleSingleMatch(region, key, teamA, teamB, currentMatchday)
+                      }
                     >
-                      <FaPlayCircle /> Sim Match
+                      Sim
                     </button>
+                  ) : (
+                    <div className="text-xs text-gray-400 font-mono text-center w-full">
+                      MVP: <span className="text-yellow-400 font-semibold">{match.mvp}</span>
+                    </div>
                   )}
                 </div>
               );
@@ -191,7 +211,6 @@ const LeagueView = () => {
           </div>
         )}
 
-        {/* Standings Modal */}
         {visibleStandingRegion === region && (
           <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex justify-center items-center p-4">
             <div className="bg-[#1c1c1c] w-full max-w-3xl p-6 rounded-lg text-white relative">
@@ -237,7 +256,6 @@ const LeagueView = () => {
 
   return (
     <div className="p-4 sm:p-6">
-      {/* Header with Stats Button */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl text-white font-extrabold tracking-wide">
           Regional League Simulation ({isStage1 ? 'Stage 1' : 'Stage 2'})
@@ -250,13 +268,18 @@ const LeagueView = () => {
         </button>
       </div>
 
-      {/* Stats Placeholder Panel */}
       {showStatsPanel ? (
         <div className="bg-[#121212] p-4 text-white rounded-lg border border-[#333] shadow-lg text-center">
-             <LeagueStatsPanel/>
+          <LeagueStatsPanel
+            results={results}
+            standings={standings}
+            matchdayIndices={matchdayIndices}
+          />
         </div>
       ) : (
-        <div className="space-y-10">{regions.map((region) => renderRegion(region))}</div>
+        <div className="space-y-10">
+          {regions.map((region) => renderRegion(region))}
+        </div>
       )}
     </div>
   );

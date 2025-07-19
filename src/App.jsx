@@ -14,14 +14,14 @@ import LeagueMenu from './Components/League/LeagueMenu';
 import LeagueView from './Components/League/LeagueView';
 import TournamentsHome from './Components/Tournaments/TournamentsHome';
 import EconomyView from './Components/Economy/EconomyView';
-import StatView from './Components/Stats/StatView'; // ✅ NEW: Full stat dashboard view
+import StatView from './Components/Stats/StatView';
 
 // Providers & Hooks
 import { CalendarProvider } from './Components/Calendar/CalendarContext';
 import { GameProvider, useGame } from './Components/Game/GameContext';
 import { TournamentProvider } from './Components/Tournaments/TournamentContext';
+import { StatProvider, useStats } from './Components/Game/StatContext'; // 
 import { useCalendarEffects } from './Components/Calendar/useCalendarEffects';
-import { StatProvider, useStats } from './Components/Game/StatContext';
 
 // Data
 import teams from '../data/teams';
@@ -39,7 +39,7 @@ const AppContent = () => {
 
   useCalendarEffects();
 
-  // Load saved game
+  // Load saved game from localStorage
   const loadCareer = (slot) => {
     const saved = localStorage.getItem(`career_slot_${slot}`);
     if (!saved) {
@@ -54,7 +54,7 @@ const AppContent = () => {
     setSavedData(data);
     setSelectedTeam(teamName);
     setUserTeam(loadedPlayers);
-    initializePlayers(loadedPlayers);
+    initializePlayers(loadedPlayers, teamName); // ✅ Added teamName for chemistry
 
     setCareerStarted(true);
     setActiveView('calendar');
@@ -63,11 +63,11 @@ const AppContent = () => {
     return data;
   };
 
-  // Handle new career creation
+  // Start new career
   const handleCareerCreated = (teamName) => {
     const initialPlayers = teams[teamName]?.players || [];
     setUserTeam(initialPlayers);
-    initializePlayers(initialPlayers);
+    initializePlayers(initialPlayers, teamName); // ✅ Added teamName for chemistry
 
     setCareerStarted(true);
     setSelectedTeam(teamName);
@@ -127,7 +127,7 @@ const AppContent = () => {
               )}
               {activeView === 'tournaments' && <TournamentsHome />}
               {activeView === 'economy' && <EconomyView />}
-              {activeView === 'stats' && <StatView />} {/* ✅ NEW: StatView */}
+              {activeView === 'stats' && <StatView />}
             </>
           )}
         </>

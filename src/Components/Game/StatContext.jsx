@@ -1,234 +1,159 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const StatContext = createContext();
 export const useStats = () => useContext(StatContext);
 
 export const StatProvider = ({ children }) => {
   const [playerStats, setPlayerStats] = useState({});
-  const [goatPoints, setGoatPoints] = useState({});
-  const [awards, setAwards] = useState([]);
-  const [retiredPlayers, setRetiredPlayers] = useState([]);
+  const [teamChemistry, setTeamChemistry] = useState({});
+  const [results, setResults] = useState({});
+  const [standings, setStandings] = useState({});
 
-  const generateBaseStats = (player) => ({
-    kills: 0,
-    assists: 0,
-    deaths: 0,
-    mvps: 0,
-    matchRating: [],
-    overallKDA: 0,
-    chemistry: Math.floor(Math.random() * 40) + 60,
-    age: player.age || Math.floor(Math.random() * 12) + 18,
-    team: player.team || '',
-    region: player.region || '',
-    contract: {
-      years: Math.floor(Math.random() * 3) + 1,
-      wage: Math.floor(Math.random() * 100_000) + 50_000,
-    },
-    history: [],
-    goatPoints: 0,
-  });
-
-  const initializePlayers = (players = []) => {
-    const updated = { ...playerStats };
-    players.forEach((p) => {
-      if (!updated[p.name]) {
-        updated[p.name] = generateBaseStats(p);
-      }
-    });
-    setPlayerStats(updated);
-  };
-
-  const updatePlayerMatchStats = (
-    name,
-    { kills, assists, deaths, mvp = false, eventName, team, region, rating }
-  ) => {
-    const stats = playerStats[name];
-    if (!stats) return;
-
-    const kda = (kills + assists) / Math.max(1, deaths);
-    const newRating = rating || kda;
-
-    const totalKills = stats.kills + kills;
-    const totalAssists = stats.assists + assists;
-    const totalDeaths = stats.deaths + deaths;
-    const overallKDA = totalDeaths === 0 ? totalKills + totalAssists : ((totalKills + totalAssists) / totalDeaths);
-
-    const updated = {
-      ...stats,
-      kills: totalKills,
-      assists: totalAssists,
-      deaths: totalDeaths,
-      mvps: mvp ? stats.mvps + 1 : stats.mvps,
-      overallKDA: parseFloat(overallKDA.toFixed(2)),
-      matchRating: [...(stats.matchRating || []), newRating],
-      team: team || stats.team,
-      region: region || stats.region,
-      history: [...stats.history, { event: eventName, kda, mvp }],
-    };
-
-    setPlayerStats((prev) => ({ ...prev, [name]: updated }));
-  };
-
-  const increaseChemistry = (names = []) => {
-    const updated = { ...playerStats };
-    names.forEach((name) => {
-      if (updated[name]) {
-        updated[name].chemistry = Math.min(100, updated[name].chemistry + 1);
-      }
-    });
-    setPlayerStats(updated);
-  };
-
-  const progressPlayerAges = () => {
-    const updated = { ...playerStats };
-    const retirees = [];
-
-    Object.entries(updated).forEach(([name, data]) => {
-      data.age += 1;
-
-      if (data.age > 28) {
-        data.chemistry = Math.max(50, data.chemistry - Math.floor(Math.random() * 3));
-        data.overallKDA = parseFloat((data.overallKDA * 0.95).toFixed(2));
-      }
-
-      if (data.age >= 31 && Math.random() < 0.3) {
-        retirees.push({ name, ...data });
-        delete updated[name];
-      }
-    });
-
-    setRetiredPlayers((prev) => [...prev, ...retirees]);
-    setPlayerStats(updated);
-  };
-
-  const processYearlyContracts = () => {
-    const updated = { ...playerStats };
-    Object.values(updated).forEach((data) => {
-      if (data.contract?.years > 0) {
-        data.contract.years -= 1;
-      }
-    });
-    setPlayerStats(updated);
-  };
-
-  const releaseExpiredContracts = () => {
-    const updated = { ...playerStats };
-    Object.entries(updated).forEach(([name, data]) => {
-      if (data.contract?.years <= 0) {
-        delete updated[name];
-      }
-    });
-    setPlayerStats(updated);
-  };
-
-  const generateRookies = () => {
-    const rookies = {};
-    for (let i = 0; i < 10; i++) {
-      const name = `Rookie_${Date.now()}_${i}`;
-      rookies[name] = generateBaseStats({ age: 18, team: 'Free Agent', region: 'None' });
+  // 🔁 Load from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('esportsGameData');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setPlayerStats(parsed.playerStats || {});
+      setTeamChemistry(parsed.teamChemistry || {});
+      setResults(parsed.results || {});
+      setStandings(parsed.standings || {});
     }
-    setPlayerStats((prev) => ({ ...prev, ...rookies }));
-  };
+  }, []);
 
-  const calculateEventMVP = (eventName) => {
-    let bestPlayer = null;
-    let bestScore = -1;
+  // 💾 Save to localStorage
+  useEffect(() => {
+    const gameData = {
+      playerStats,
+      teamChemistry,
+      results,
+      standings,
+    };
+    localStorage.setItem('esportsGameData', JSON.stringify(gameData));
+  }, [playerStats, teamChemistry, results, standings]);
 
-    Object.entries(playerStats).forEach(([name, data]) => {
-      const event = data.history.find((h) => h.event === eventName);
-      if (!event) return;
+  // 🔁 Initialize player stats + chemistry
+  const initializePlayers = (players, teamName = null) => {
+    const newStats = {};
+    const newChem = { ...teamChemistry };
 
-      const score = event.kda * (event.mvp ? 1.25 : 1);
-      if (score > bestScore) {
-        bestScore = score;
-        bestPlayer = name;
+    players.forEach((player) => {
+      if (!playerStats[player.name]) {
+        newStats[player.name] = {
+          kills: 0,
+          assists: 0,
+          deaths: 0,
+          rating: 0,
+          matchesPlayed: 0,
+          mvp: 0,
+          roundsSurvived: 0,
+        };
       }
     });
 
-    if (bestPlayer) {
-      setAwards((prev) => [...prev, { type: 'MVP', name: bestPlayer, event: eventName }]);
-      setGoatPoints((prev) => ({
+    if (teamName && !newChem[teamName]) {
+      newChem[teamName] = parseFloat((Math.random() * 0.15 + 0.15).toFixed(2)); // 0.15 - 0.3
+    }
+
+    setPlayerStats((prev) => ({ ...prev, ...newStats }));
+    setTeamChemistry(newChem);
+  };
+
+  // 🔼 Update per-match stats
+  const updatePlayerMatchStats = (playerName, matchStats) => {
+    setPlayerStats((prevStats) => {
+      const prev = prevStats[playerName] || {};
+      const updated = {
         ...prev,
-        [bestPlayer]: (prev[bestPlayer] || 0) + 5,
-      }));
-    }
-  };
-
-  const awardGoatPoints = (teamName, playerNames = [], eventType) => {
-    const eventValues = {
-      League: 250,
-      Major: 500,
-      Invitational: 1000,
-    };
-    const teamPoints = eventValues[eventType] || 0;
-    const perPlayer = Math.floor(teamPoints * 0.25);
-
-    const updated = { ...goatPoints };
-    playerNames.forEach((name) => {
-      updated[name] = (updated[name] || 0) + perPlayer;
+        kills: (prev.kills || 0) + matchStats.kills,
+        assists: (prev.assists || 0) + matchStats.assists,
+        deaths: (prev.deaths || 0) + matchStats.deaths,
+        roundsSurvived: (prev.roundsSurvived || 0) + (matchStats.roundsSurvived || 0),
+        matchesPlayed: (prev.matchesPlayed || 0) + 1,
+        rating: matchStats.rating || prev.rating,
+        mvp: prev.mvp + (matchStats.mvp ? 1 : 0),
+      };
+      return { ...prevStats, [playerName]: updated };
     });
-    setGoatPoints(updated);
   };
 
-  const calculateSeasonAwards = () => {
-    const players = Object.entries(playerStats).map(([name, data]) => ({
-      name,
-      kda: data.overallKDA,
-      mvps: data.mvps,
-      totalKills: data.kills,
-      score: data.mvps * 25 + data.kills * 0.1,
-    }));
+  // ➕ Gradually increase team chemistry
+  const increaseTeamChemistry = (teamNames = []) => {
+    const newChem = { ...teamChemistry };
+    teamNames.forEach((team) => {
+      const current = newChem[team] ?? 0.3;
+      const increment = current < 0.5 ? 0.03 : 0.015; // Slower growth after 0.5
+      newChem[team] = Math.min(1.0, current + increment);
+    });
+    setTeamChemistry(newChem);
+  };
 
-    players.sort((a, b) => b.score - a.score);
+  // 📈 Get chemistry value
+  const getTeamChemistry = (teamName) => {
+    return parseFloat((teamChemistry[teamName] ?? 0.4).toFixed(3));
+  };
 
-    const poy = players[0];
-    const allStars = players.slice(1, 6);
+  // 🧮 Win probability = rating × chemistry
+  const calculateWinChance = (avgRating, teamName) => {
+    const chemistry = getTeamChemistry(teamName);
+    return avgRating * chemistry;
+  };
 
-    setAwards((prev) => [
-      ...prev,
-      { type: 'Player of the Year', name: poy.name },
-      ...allStars.map((p) => ({ type: 'All-Star', name: p.name })),
-    ]);
+  // 🏆 MVP Calculation (adjusted KDA + weight)
+  const determineMVP = (players, stage = 'group') => {
+    let topPlayer = null;
+    let topScore = -Infinity;
 
-    const updated = { ...goatPoints };
-    updated[poy.name] = (updated[poy.name] || 0) + 10;
-    allStars.forEach((p) => {
-      updated[p.name] = (updated[p.name] || 0) + 3;
+    players.forEach((player) => {
+      const stats = playerStats[player.name];
+      if (!stats) return;
+
+      const kda = (stats.kills + stats.assists) / Math.max(1, stats.deaths);
+
+      let multiplier = 1.0;
+      if (stage === 'playoffs') multiplier += 0.10;
+      else if (stage === 'grand_final') multiplier += 0.15;
+      else if (stage === 'winner') multiplier += 0.25;
+
+      const adjustedScore = kda * multiplier;
+
+      const tieBreaker = (p1, p2) => {
+        if (!p2) return 1;
+        const s1 = playerStats[p1.name], s2 = playerStats[p2.name];
+        if (s1.kills !== s2.kills) return s1.kills - s2.kills;
+        if (s1.roundsSurvived !== s2.roundsSurvived) return s1.roundsSurvived - s2.roundsSurvived;
+        return Math.random() < 0.5 ? 1 : -1;
+      };
+
+      if (
+        adjustedScore > topScore ||
+        (adjustedScore === topScore && tieBreaker(player, topPlayer) > 0)
+      ) {
+        topScore = adjustedScore;
+        topPlayer = player;
+      }
     });
 
-    setGoatPoints(updated);
-  };
-
-  const resetStats = () => {
-    setPlayerStats({});
-    setGoatPoints({});
-    setAwards([]);
-    setRetiredPlayers([]);
-  };
-
-  const getPlayerStatByName = (name) => {
-    return playerStats[name] || null;
+    return topPlayer?.name || null;
   };
 
   return (
     <StatContext.Provider
       value={{
         playerStats,
+        setPlayerStats,
+        teamChemistry,
+        setTeamChemistry,
+        results,
+        setResults,
+        standings,
+        setStandings,
         initializePlayers,
         updatePlayerMatchStats,
-        increaseChemistry,
-        processYearlyContracts,
-        releaseExpiredContracts,
-        progressPlayerAges,
-        generateRookies,
-        calculateEventMVP,
-        calculateSeasonAwards,
-        awardGoatPoints,
-        resetStats,
-        getPlayerStatByName,
-        goatPoints,
-        awards,
-        retiredPlayers,
+        increaseTeamChemistry,
+        getTeamChemistry,
+        calculateWinChance,
+        determineMVP,
       }}
     >
       {children}
